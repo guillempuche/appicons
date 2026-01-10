@@ -234,6 +234,34 @@ bun run typecheck
 bun run lint
 ```
 
+## Releasing
+
+Uses [release-it](https://github.com/release-it/release-it) with [CalVer](https://calver.org/) (`yyyy.mm.minor`).
+
+### Setup (one-time)
+
+```bash
+# NPM login
+npm login
+
+# Set NPM automation token (bypasses 2FA)
+npm config set //registry.npmjs.org/:_authToken YOUR_AUTOMATION_TOKEN
+```
+
+### Release
+
+```bash
+GITHUB_TOKEN=$(gh auth token) bun run release
+```
+
+This will:
+1. Run typecheck and lint
+2. Build the project
+3. Bump version (e.g., `2026.1.0` → `2026.1.1`)
+4. Create git tag and commit
+5. Publish to NPM
+6. Create GitHub release
+
 ## Related
 
 - [iOS Human Interface Guidelines - App Icons](https://developer.apple.com/design/human-interface-guidelines/app-icons)
