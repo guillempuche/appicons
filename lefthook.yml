@@ -1,0 +1,18 @@
+pre-commit:
+  commands:
+    check-types:
+      run: |
+        echo "🔍 Running TypeScript checks..."
+        bun run typecheck
+
+    lint:
+      run: |
+        echo "✨ Running Biome on staged files..."
+        bunx biome check --write --no-errors-on-unmatched --max-diagnostics=none {staged_files}
+      stage_fixed: true
+
+    format-package:
+      run: |
+        echo "📦 Formatting package.json..."
+        bun run lint:syncpack
+      stage_fixed: true

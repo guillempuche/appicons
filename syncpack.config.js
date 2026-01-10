@@ -1,0 +1,28 @@
+/** @type {import("syncpack").RcFile} */
+export default {
+	dependencyTypes: ['dev', 'prod', 'peer'],
+	filter: '.',
+	indent: '\t',
+	sortAz: ['dependencies', 'devDependencies', 'peerDependencies'],
+	sortFirst: [
+		'name',
+		'version',
+		'description',
+		'repository',
+		'type',
+		'main',
+		'types',
+		'module',
+		'bin',
+		'exports',
+		'scripts',
+		'dependencies',
+		'peerDependencies',
+		'devDependencies',
+		'keywords',
+		'license',
+		'private',
+	],
+	sortPackages: true,
+	source: ['package.json'],
+}
