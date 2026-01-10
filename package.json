@@ -1,6 +1,6 @@
 {
 	"name": "app-asset-generator",
-	"version": "2026.1.0",
+	"version": "2026.1.1",
 	"description": "Generate app icons, splash screens, and adaptive icons for iOS, Android, and Web. CLI and interactive TUI with Google Fonts support.",
 	"repository": "guillempuche/app-asset-generator.git",
 	"type": "module",
