@@ -1,6 +1,13 @@
 # App Asset Generator
 
+[![npm version](https://img.shields.io/npm/v/app-asset-generator.svg)](https://www.npmjs.com/package/app-asset-generator)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Generate all required app assets (icons, splash screens, adaptive icons, favicons) for iOS, Android, and Web platforms from a single configuration.
+
+```bash
+npm install -g app-asset-generator
+```
 
 ## Features
 
@@ -29,21 +36,15 @@ Generate all required app assets (icons, splash screens, adaptive icons, favicon
 ## Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/guillempuche/app-asset-generator.git
-cd app-asset-generator
+npm install -g app-asset-generator
+```
 
-# Enter Nix environment (recommended)
-nix develop
+Or with other package managers:
 
-# Install dependencies
-bun install
-
-# Run the TUI
-bun run tui
-
-# Or run CLI mode
-bun run dev --help
+```bash
+pnpm add -g app-asset-generator
+yarn global add app-asset-generator
+bun add -g app-asset-generator
 ```
 
 ## Usage
@@ -51,10 +52,11 @@ bun run dev --help
 ### Interactive Mode (Recommended)
 
 ```bash
-bun run tui
+app-asset-generator
 ```
 
 The TUI will guide you through:
+
 1. App name
 2. Target platforms (iOS, Android, Web)
 3. Asset types (icons, splash, adaptive, favicons)
@@ -82,16 +84,16 @@ Commands:
 
 ```bash
 # Simple generation with defaults
-bun run dev generate
+app-asset-generator generate
 
 # Customize text and color
-bun run dev generate \
+app-asset-generator generate \
   --fg-text "X" \
   --fg-color "#004C6E" \
   --bg-color "#FFFFFF"
 
 # Full configuration with Google Font
-bun run dev generate \
+app-asset-generator generate \
   --name "MyApp" \
   --fg-text "M" \
   --fg-font "Inter" \
@@ -101,7 +103,7 @@ bun run dev generate \
   --platforms "ios,android,web"
 
 # Gradient background
-bun run dev generate \
+app-asset-generator generate \
   --bg-type gradient \
   --bg-gradient-colors "#667eea,#764ba2" \
   --bg-gradient-angle 135 \
@@ -109,37 +111,37 @@ bun run dev generate \
   --fg-color "#FFFFFF"
 
 # SVG icon
-bun run dev generate \
+app-asset-generator generate \
   --bg-color "#FFFFFF" \
   --fg-type svg \
   --fg-svg ./logo.svg \
   --fg-svg-color "#000000"
 
 # Dry-run (validate without generating)
-bun run dev generate --dry-run
+app-asset-generator generate --dry-run
 
 # JSON output for AI agents
-bun run dev generate --format json
+app-asset-generator generate --format json
 ```
 
 #### Other Commands
 
 ```bash
 # List available Google Fonts
-bun run dev list-fonts
+app-asset-generator list-fonts
 
 # Show platform specifications
-bun run dev list-platforms
+app-asset-generator list-platforms
 
 # Validate configuration
-bun run dev validate --fg-font "Inter" --fg-font-source google
+app-asset-generator validate --fg-font "Inter" --fg-font-source google
 
 # Show integration instructions
-bun run dev instructions --platforms ios,android
+app-asset-generator instructions --platforms ios,android
 
 # Generate shell completion script
-bun run dev completion >> ~/.bashrc  # bash
-bun run dev completion >> ~/.zshrc   # zsh
+app-asset-generator completion >> ~/.bashrc  # bash
+app-asset-generator completion >> ~/.zshrc   # zsh
 ```
 
 ## Output Structure
@@ -212,55 +214,9 @@ assets/generated-YYYYMMDD-HHMMSS/
 
 6. **Google Fonts**: All fonts are loaded from Google Fonts API. Any font from fonts.google.com can be used.
 
-## Development
+## Contributing
 
-```bash
-# Enter Nix environment
-nix develop
-
-# Install dependencies
-bun install
-
-# Run TUI in development
-bun run tui
-
-# Run CLI in development
-bun run dev
-
-# Type checking
-bun run typecheck
-
-# Lint and format
-bun run lint
-```
-
-## Releasing
-
-Uses [release-it](https://github.com/release-it/release-it) with [CalVer](https://calver.org/) (`yyyy.mm.minor`).
-
-### Setup (one-time)
-
-```bash
-# NPM login
-npm login
-
-# Set NPM automation token (bypasses 2FA)
-npm config set //registry.npmjs.org/:_authToken YOUR_AUTOMATION_TOKEN
-```
-
-### Release
-
-```bash
-GITHUB_TOKEN=$(gh auth token) bun run release
-```
-
-This will:
-1. Run typecheck and lint
-2. Build the project
-3. Bump version (e.g., `2026.1.0` → `2026.1.1`)
-4. Create git tag and commit
-5. Publish to NPM
-6. Create GitHub release
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
 ## Related
 
