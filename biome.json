@@ -27,19 +27,20 @@
 		"rules": {
 			"recommended": true,
 			"correctness": {
-				"useExhaustiveDependencies": "warn"
+				"useExhaustiveDependencies": "warn",
+				"noUnusedFunctionParameters": "off",
+				"noUnusedVariables": "warn",
+				"noUnusedImports": "warn"
 			},
 			"performance": {
 				"noAccumulatingSpread": "warn"
 			},
 			"suspicious": {
-				"noConsole": {
-					"level": "warn",
-					"options": {
-						"allow": ["error", "warn"]
-					}
-				},
-				"noExplicitAny": "warn"
+				"noConsole": "off",
+				"noExplicitAny": "off"
+			},
+			"style": {
+				"noNonNullAssertion": "off"
 			}
 		}
 	},
@@ -65,7 +66,13 @@
 		}
 	},
 	"files": {
-		"includes": ["**", "!./dist", "!./node_modules", "!./assets"],
+		"includes": [
+			"**",
+			"!./dist",
+			"!./node_modules",
+			"!./assets",
+			"!./.claude/*.local.json"
+		],
 		"ignoreUnknown": true
 	},
 	"vcs": {

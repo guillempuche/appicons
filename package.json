@@ -1,6 +1,6 @@
 {
 	"name": "app-asset-generator",
-	"version": "0.1.0",
+	"version": "2026.1.0",
 	"description": "Generate app icons, splash screens, and adaptive icons for iOS, Android, and Web. CLI and interactive TUI with Google Fonts support.",
 	"repository": "guillempuche/app-asset-generator.git",
 	"type": "module",
@@ -17,7 +17,8 @@
 		"lint": "biome check --write --no-errors-on-unmatched --max-diagnostics=none",
 		"lint:check": "biome check",
 		"lint:syncpack": "syncpack format --config syncpack.config.js",
-		"prepare": "lefthook install && effect-language-service patch"
+		"prepare": "lefthook install && effect-language-service patch",
+		"release": "bun run build && release-it"
 	},
 	"dependencies": {
 		"@clack/prompts": "^0.10.0",
@@ -34,12 +35,14 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.8",
+		"@csmith/release-it-calver-plugin": "^2023.12.0",
 		"@effect/language-service": "^0.62.5",
 		"@types/bun": "latest",
 		"@types/node": "^22",
 		"@types/opentype.js": "^1",
 		"@types/react": "^19",
 		"lefthook": "^2.0.13",
+		"release-it": "^19.2.3",
 		"syncpack": "^13.0.4",
 		"typescript": "^5.9.3"
 	},
@@ -66,5 +69,12 @@
 	"license": "MIT",
 	"author": "Guillem Puche",
 	"bugs": "https://github.com/guillempuche/app-asset-generator/issues",
+	"engines": {
+		"node": ">=22"
+	},
+	"files": [
+		"dist",
+		"README.md"
+	],
 	"homepage": "https://github.com/guillempuche/app-asset-generator#readme"
 }

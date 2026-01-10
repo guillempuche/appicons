@@ -1,0 +1,23 @@
+{
+	"git": {
+		"commitMessage": "chore: release v${version}",
+		"tagName": "v${version}",
+		"requireBranch": "main",
+		"requireCleanWorkingDir": true
+	},
+	"npm": {
+		"publish": true
+	},
+	"github": {
+		"release": true,
+		"releaseName": "v${version}"
+	},
+	"hooks": {
+		"before:init": ["bun run typecheck", "bun run lint:check"]
+	},
+	"plugins": {
+		"@csmith/release-it-calver-plugin": {
+			"format": "yyyy.mm.minor"
+		}
+	}
+}
