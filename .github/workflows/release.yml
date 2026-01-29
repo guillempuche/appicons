@@ -18,6 +18,8 @@ jobs:
             target: darwin-x64
           - os: ubuntu-latest
             target: linux-x64
+          - os: ubuntu-24.04-arm
+            target: linux-arm64
           - os: windows-latest
             target: win32-x64
     runs-on: ${{ matrix.os }}
@@ -37,20 +39,27 @@ jobs:
       - name: Package (Unix)
         if: runner.os != 'Windows'
         run: |
-          mkdir -p release
+          mkdir -p release/node_modules
+
           cp dist/cli.js release/appicons.js
 
-          # Copy Sharp native modules for this platform
-          # Sharp stores natives in node_modules/@img/sharp-*/
-          SHARP_DIR=$(find node_modules -type d -name "sharp-${{ matrix.target }}" 2>/dev/null | head -1 || true)
-          if [ -n "$SHARP_DIR" ] && [ -d "$SHARP_DIR" ]; then
-            cp -r "$SHARP_DIR" release/
+          # Copy Sharp native modules
+          if [ -d "node_modules/sharp" ]; then
+            cp -r node_modules/sharp release/node_modules/
+          fi
+          SHARP_NATIVE=$(find node_modules/@img -type d -name "sharp-*-${{ matrix.target }}" 2>/dev/null | head -1 || true)
+          if [ -n "$SHARP_NATIVE" ]; then
+            mkdir -p release/node_modules/@img
+            cp -r "$SHARP_NATIVE" release/node_modules/@img/
           fi
 
-          # Also copy the main sharp package
-          if [ -d "node_modules/sharp" ]; then
-            mkdir -p release/node_modules
-            cp -r node_modules/sharp release/node_modules/
+          # Copy OpenTUI native modules
+          if [ -d "node_modules/@opentui/core" ]; then
+            mkdir -p release/node_modules/@opentui
+            cp -r node_modules/@opentui/core release/node_modules/@opentui/
+          fi
+          if [ -d "node_modules/@opentui/core-${{ matrix.target }}" ]; then
+            cp -r "node_modules/@opentui/core-${{ matrix.target }}" release/node_modules/@opentui/
           fi
 
           tar -czvf appicons-${{ matrix.target }}.tar.gz -C release .
@@ -59,19 +68,26 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path release
+          New-Item -ItemType Directory -Force -Path release/node_modules
           Copy-Item dist/cli.js release/appicons.js
 
           # Copy Sharp native modules
-          $sharpDir = Get-ChildItem -Path node_modules -Directory -Recurse -Filter "sharp-${{ matrix.target }}" -ErrorAction SilentlyContinue | Select-Object -First 1
-          if ($sharpDir) {
-            Copy-Item -Recurse $sharpDir.FullName release/
+          if (Test-Path "node_modules/sharp") {
+            Copy-Item -Recurse node_modules/sharp release/node_modules/
+          }
+          $sharpNative = Get-ChildItem -Path "node_modules/@img" -Directory -Filter "sharp-*-${{ matrix.target }}" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($sharpNative) {
+            New-Item -ItemType Directory -Force -Path "release/node_modules/@img"
+            Copy-Item -Recurse $sharpNative.FullName "release/node_modules/@img/"
           }
 
-          # Copy main sharp package
-          if (Test-Path "node_modules/sharp") {
-            New-Item -ItemType Directory -Force -Path release/node_modules
-            Copy-Item -Recurse node_modules/sharp release/node_modules/
+          # Copy OpenTUI native modules
+          if (Test-Path "node_modules/@opentui/core") {
+            New-Item -ItemType Directory -Force -Path "release/node_modules/@opentui"
+            Copy-Item -Recurse "node_modules/@opentui/core" "release/node_modules/@opentui/"
+          }
+          if (Test-Path "node_modules/@opentui/core-${{ matrix.target }}") {
+            Copy-Item -Recurse "node_modules/@opentui/core-${{ matrix.target }}" "release/node_modules/@opentui/"
           }
 
           Compress-Archive -Path release/* -DestinationPath appicons-${{ matrix.target }}.zip

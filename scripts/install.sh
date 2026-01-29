@@ -25,7 +25,7 @@ detect_platform() {
     case "$(uname -s)" in
         Darwin) os="darwin" ;;
         Linux)  os="linux" ;;
-        MINGW*|MSYS*|CYGWIN*) error "Windows detected. Please use the PowerShell installer instead." ;;
+        MINGW*|MSYS*|CYGWIN*) error "Windows detected. Run in PowerShell: irm https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/install.ps1 | iex" ;;
         *) error "Unsupported operating system: $(uname -s)" ;;
     esac
 
@@ -98,7 +98,7 @@ download_release() {
 
     # Create install directory and extract
     mkdir -p "$INSTALL_DIR"
-    tar -xzf "$tmp_dir/$archive_name" -C "$INSTALL_DIR" --strip-components=1
+    tar -xzf "$tmp_dir/$archive_name" -C "$INSTALL_DIR"
 
     info "Extracted to $INSTALL_DIR"
 }
@@ -121,8 +121,15 @@ else
     exit 1
 fi
 
-# Get the directory where this script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Get the directory where this script is located (resolving symlinks)
+SOURCE="${BASH_SOURCE[0]}"
+while [[ -L "$SOURCE" ]]; do
+    DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+    SOURCE="$(readlink "$SOURCE")"
+    # If SOURCE is relative, resolve it relative to the symlink's directory
+    [[ "$SOURCE" != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 # Run the CLI with Bun
 exec "$BUN_PATH" "$SCRIPT_DIR/appicons.js" "$@"
