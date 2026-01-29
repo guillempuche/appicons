@@ -49,9 +49,10 @@ export async function runInteractiveMenu(): Promise<void> {
 
 		// Handle graceful shutdown
 		const cleanup = () => {
-			resetTerminalState()
-			root.unmount()
 			renderer.stop()
+			root.unmount()
+			renderer.destroy() // Restores terminal state, disables mouse tracking
+			resetTerminalState()
 		}
 
 		process.on('SIGINT', () => {
