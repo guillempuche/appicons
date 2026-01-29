@@ -14,7 +14,7 @@ jobs:
         include:
           - os: macos-latest
             target: darwin-arm64
-          - os: macos-15-large
+          - os: macos-15-intel
             target: darwin-x64
           - os: ubuntu-latest
             target: linux-x64
@@ -94,11 +94,11 @@ jobs:
           merge-multiple: true
 
       - name: List artifacts
-        run: find artifacts -type f
+        run: ls -la artifacts/
 
       - uses: softprops/action-gh-release@v2
         with:
           files: |
-            artifacts/**/*.tar.gz
-            artifacts/**/*.zip
+            artifacts/*.tar.gz
+            artifacts/*.zip
           generate_release_notes: true
