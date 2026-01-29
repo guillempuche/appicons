@@ -24,6 +24,7 @@ import { Args, Command, Options } from '@effect/cli'
 import { NodeContext, NodeRuntime } from '@effect/platform-node'
 import { Console, Effect, Option } from 'effect'
 
+import packageJson from '../package.json'
 import { runInteractiveMenu } from './index'
 import type { AssetGeneratorConfig } from './types'
 import {
@@ -707,7 +708,7 @@ const command = assets.pipe(
 
 const cli = Command.run(command, {
 	name: 'appicons',
-	version: '2026.1.1',
+	version: packageJson.version,
 })
 
 // ─── Run ───────────────────────────────────────────────────────────────────
