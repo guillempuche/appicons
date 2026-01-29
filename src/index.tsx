@@ -76,5 +76,7 @@ export async function runInteractiveMenu(): Promise<void> {
 	}
 }
 
-// Auto-run when executed directly
-runInteractiveMenu()
+// Auto-run when executed directly (not when imported by cli.ts)
+if (import.meta.main) {
+	runInteractiveMenu()
+}

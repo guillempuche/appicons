@@ -20,7 +20,7 @@
  * - json: Machine-readable output for AI agents and automation.
  */
 
-import { Args, Command, Options } from '@effect/cli'
+import { Command, Options } from '@effect/cli'
 import { NodeContext, NodeRuntime } from '@effect/platform-node'
 import { Console, Effect, Option } from 'effect'
 
@@ -42,6 +42,12 @@ import {
 	type GenerationContext,
 	generateInstructions,
 } from './utils/instructions'
+import {
+	checkForUpdates,
+	printUpdateNoticeIfCached,
+	runUpdateScript,
+	scheduleBackgroundVersionCheck,
+} from './utils/version_check'
 
 /**
  * Generate datetime-based output directory.
@@ -660,9 +666,9 @@ const listPlatformsCmd = Command.make(
  */
 const completionCmd = Command.make('completion', {}, () =>
 	Effect.promise(async () => {
-		const fs = await import('fs/promises')
-		const path = await import('path')
-		const { fileURLToPath } = await import('url')
+		const fs = await import('node:fs/promises')
+		const path = await import('node:path')
+		const { fileURLToPath } = await import('node:url')
 
 		try {
 			const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -675,6 +681,46 @@ const completionCmd = Command.make('completion', {}, () =>
 			console.log('# zsh:  appicons completion >> ~/.zshrc')
 		} catch (error) {
 			console.error('Error reading completion script:', error)
+			process.exit(1)
+		}
+	}),
+)
+
+// ─── Update Command ────────────────────────────────────────────────────────
+
+/**
+ * The 'update' subcommand updates appicons to the latest version.
+ *
+ * Fetches the latest version from GitHub releases and runs the
+ * appropriate install script (bash for Unix, PowerShell for Windows).
+ */
+const updateCmd = Command.make('update', {}, () =>
+	Effect.promise(async () => {
+		console.log('Checking for updates...\n')
+
+		const info = await checkForUpdates()
+
+		if (!info) {
+			console.error('Failed to check for updates. Please try again later.')
+			process.exit(1)
+		}
+
+		console.log(`Current version: ${info.current}`)
+		console.log(`Latest version:  ${info.latest}`)
+
+		if (!info.isOutdated) {
+			console.log('\n\u2713 Already on latest version')
+			return
+		}
+
+		console.log('\nUpdating...')
+
+		try {
+			await runUpdateScript()
+			console.log(`\n\u2713 Updated to ${info.latest}`)
+		} catch (error) {
+			console.error('\nUpdate failed:', error)
+			console.error(`\nYou can update manually by visiting: ${info.releaseUrl}`)
 			process.exit(1)
 		}
 	}),
@@ -703,12 +749,28 @@ const command = assets.pipe(
 		listFontsCmd,
 		listPlatformsCmd,
 		completionCmd,
+		updateCmd,
 	]),
 )
 
 const cli = Command.run(command, {
 	name: 'appicons',
 	version: packageJson.version,
+})
+
+// ─── Version Check Setup ───────────────────────────────────────────────────
+// Non-blocking version check: reads from cache at exit, updates cache in background.
+
+// Schedule background fetch to update cache for next run (truly non-blocking)
+scheduleBackgroundVersionCheck()
+
+// Print update notice when CLI exits (reads from cache only, instant)
+process.on('beforeExit', () => {
+	// Skip update notice for the update command itself
+	const isUpdateCommand = process.argv.includes('update')
+	if (!isUpdateCommand) {
+		printUpdateNoticeIfCached()
+	}
 })
 
 // ─── Run ───────────────────────────────────────────────────────────────────
