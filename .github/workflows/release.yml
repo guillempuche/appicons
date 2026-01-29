@@ -41,7 +41,9 @@ jobs:
         run: |
           mkdir -p release/node_modules
 
-          cp dist/cli.js release/appicons.js
+          # Copy all build outputs (cli.js + tree-sitter wasm/scm assets)
+          cp dist/* release/
+          mv release/cli.js release/appicons.js
 
           # Copy Sharp native modules
           if [ -d "node_modules/sharp" ]; then
@@ -69,7 +71,10 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path release/node_modules
-          Copy-Item dist/cli.js release/appicons.js
+
+          # Copy all build outputs (cli.js + tree-sitter wasm/scm assets)
+          Copy-Item dist/* release/
+          Rename-Item release/cli.js appicons.js
 
           # Copy Sharp native modules
           if (Test-Path "node_modules/sharp") {
