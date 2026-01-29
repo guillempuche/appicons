@@ -45,14 +45,15 @@ jobs:
           cp dist/* release/
           mv release/cli.js release/appicons.js
 
-          # Copy Sharp native modules
+          # Copy Sharp native modules (both sharp-{platform} and sharp-libvips-{platform})
           if [ -d "node_modules/sharp" ]; then
             cp -r node_modules/sharp release/node_modules/
           fi
-          SHARP_NATIVE=$(find node_modules/@img -type d -name "sharp-*-${{ matrix.target }}" 2>/dev/null | head -1 || true)
-          if [ -n "$SHARP_NATIVE" ]; then
+          if [ -d "node_modules/@img" ]; then
             mkdir -p release/node_modules/@img
-            cp -r "$SHARP_NATIVE" release/node_modules/@img/
+            for dir in node_modules/@img/*-${{ matrix.target }}; do
+              [ -d "$dir" ] && cp -r "$dir" release/node_modules/@img/
+            done
           fi
 
           # Copy OpenTUI native modules
@@ -76,14 +77,15 @@ jobs:
           Copy-Item dist/* release/
           Rename-Item release/cli.js appicons.js
 
-          # Copy Sharp native modules
+          # Copy Sharp native modules (both sharp-{platform} and sharp-libvips-{platform})
           if (Test-Path "node_modules/sharp") {
             Copy-Item -Recurse node_modules/sharp release/node_modules/
           }
-          $sharpNative = Get-ChildItem -Path "node_modules/@img" -Directory -Filter "sharp-*-${{ matrix.target }}" -ErrorAction SilentlyContinue | Select-Object -First 1
-          if ($sharpNative) {
+          if (Test-Path "node_modules/@img") {
             New-Item -ItemType Directory -Force -Path "release/node_modules/@img"
-            Copy-Item -Recurse $sharpNative.FullName "release/node_modules/@img/"
+            Get-ChildItem -Path "node_modules/@img" -Directory -Filter "*-${{ matrix.target }}" | ForEach-Object {
+              Copy-Item -Recurse $_.FullName "release/node_modules/@img/"
+            }
           }
 
           # Copy OpenTUI native modules
