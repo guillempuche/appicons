@@ -1,0 +1,104 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: darwin-arm64
+          - os: macos-13
+            target: darwin-x64
+          - os: ubuntu-latest
+            target: linux-x64
+          - os: windows-latest
+            target: win32-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build release bundle
+        run: bun run build:release
+
+      - name: Package (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p release
+          cp dist/cli.js release/appicons.js
+
+          # Copy Sharp native modules for this platform
+          # Sharp stores natives in node_modules/@img/sharp-*/
+          SHARP_DIR=$(find node_modules -type d -name "sharp-${{ matrix.target }}" 2>/dev/null | head -1 || true)
+          if [ -n "$SHARP_DIR" ] && [ -d "$SHARP_DIR" ]; then
+            cp -r "$SHARP_DIR" release/
+          fi
+
+          # Also copy the main sharp package
+          if [ -d "node_modules/sharp" ]; then
+            mkdir -p release/node_modules
+            cp -r node_modules/sharp release/node_modules/
+          fi
+
+          tar -czvf appicons-${{ matrix.target }}.tar.gz -C release .
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release
+          Copy-Item dist/cli.js release/appicons.js
+
+          # Copy Sharp native modules
+          $sharpDir = Get-ChildItem -Path node_modules -Directory -Recurse -Filter "sharp-${{ matrix.target }}" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($sharpDir) {
+            Copy-Item -Recurse $sharpDir.FullName release/
+          }
+
+          # Copy main sharp package
+          if (Test-Path "node_modules/sharp") {
+            New-Item -ItemType Directory -Force -Path release/node_modules
+            Copy-Item -Recurse node_modules/sharp release/node_modules/
+          }
+
+          Compress-Archive -Path release/* -DestinationPath appicons-${{ matrix.target }}.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: appicons-${{ matrix.target }}
+          path: |
+            appicons-${{ matrix.target }}.tar.gz
+            appicons-${{ matrix.target }}.zip
+          if-no-files-found: ignore
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: find artifacts -type f
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/**/*.tar.gz
+            artifacts/**/*.zip
+          generate_release_notes: true

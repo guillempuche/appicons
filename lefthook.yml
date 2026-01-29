@@ -8,7 +8,7 @@ pre-commit:
     lint:
       run: |
         echo "✨ Running Biome on staged files..."
-        bunx biome check --write --no-errors-on-unmatched --max-diagnostics=none {staged_files}
+        ./node_modules/.bin/biome check --write --no-errors-on-unmatched --max-diagnostics=none {staged_files}
       stage_fixed: true
 
     format-package:

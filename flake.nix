@@ -1,5 +1,5 @@
 {
-  description = "App Asset Generator - Icons, splash screens, and adaptive icons";
+  description = "appicons - Generate app icons, splash screens, and adaptive icons";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -23,7 +23,7 @@
 
           shellHook = ''
             echo ""
-            echo "🎨 App Asset Generator"
+            echo "appicons"
             echo "Bun $(bun --version)"
             echo "Biome $(biome --version)"
             echo ""

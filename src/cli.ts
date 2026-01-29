@@ -219,7 +219,7 @@ const generate = Command.make(
 							}
 						}
 						console.error('\nBrowse all fonts: https://fonts.google.com/')
-						console.error('Or use: app-asset-generator list-fonts')
+						console.error('Or use: appicons list-fonts')
 						process.exit(2)
 					}
 				}
@@ -551,7 +551,7 @@ const listFontsCmd = Command.make(
 			}
 
 			console.log(
-				`Use with: app-asset-generator generate --fg-font "Font Name" --fg-font-source google`,
+				`Use with: appicons generate --fg-font "Font Name" --fg-font-source google`,
 			)
 			console.log(`Browse all fonts: https://fonts.google.com/`)
 		}),
@@ -670,8 +670,8 @@ const completionCmd = Command.make('completion', {}, () =>
 
 			console.log(completionScript)
 			console.log('\n# Installation instructions:')
-			console.log('# bash: app-asset-generator completion >> ~/.bashrc')
-			console.log('# zsh:  app-asset-generator completion >> ~/.zshrc')
+			console.log('# bash: appicons completion >> ~/.bashrc')
+			console.log('# zsh:  appicons completion >> ~/.zshrc')
 		} catch (error) {
 			console.error('Error reading completion script:', error)
 			process.exit(1)
@@ -687,7 +687,7 @@ const completionCmd = Command.make('completion', {}, () =>
  * Uses OpenTUI to provide a visual configuration interface with live preview.
  * For non-interactive use, specify a subcommand like 'generate' or 'validate'.
  */
-const assets = Command.make('app-asset-generator', {}, () =>
+const assets = Command.make('appicons', {}, () =>
 	Effect.promise(() => runInteractiveMenu()),
 )
 
@@ -706,8 +706,8 @@ const command = assets.pipe(
 )
 
 const cli = Command.run(command, {
-	name: 'App Asset Generator',
-	version: '0.1.0',
+	name: 'appicons',
+	version: '2026.1.1',
 })
 
 // ─── Run ───────────────────────────────────────────────────────────────────

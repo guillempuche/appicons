@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in contributing to App Asset Generator!
+Thank you for your interest in contributing to appicons!
 
 ## Development Setup
 
@@ -13,8 +13,8 @@ Thank you for your interest in contributing to App Asset Generator!
 
 ```bash
 # Clone the repository
-git clone https://github.com/guillempuche/app-asset-generator.git
-cd app-asset-generator
+git clone https://github.com/guillempuche/appicons.git
+cd appicons
 
 # Enter Nix environment (recommended)
 nix develop

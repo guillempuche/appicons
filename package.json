@@ -1,18 +1,17 @@
 {
-	"name": "app-asset-generator",
+	"name": "appicons",
 	"version": "2026.1.1",
 	"description": "Generate app icons, splash screens, and adaptive icons for iOS, Android, and Web. CLI and interactive TUI with Google Fonts support.",
-	"repository": "guillempuche/app-asset-generator.git",
+	"repository": "guillempuche/appicons.git",
 	"type": "module",
-	"main": "./dist/cli.js",
-	"types": "./dist/cli.d.ts",
 	"bin": {
-		"app-asset-generator": "./dist/cli.js"
+		"appicons": "./dist/cli.js"
 	},
 	"scripts": {
 		"dev": "bun run src/cli.ts",
 		"tui": "bun run src/index.tsx",
 		"build": "bun build src/cli.ts --outdir dist --target node",
+		"build:release": "bun build src/cli.ts --outdir dist --target bun --minify",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome check --write --no-errors-on-unmatched --max-diagnostics=none",
 		"lint:check": "biome check",
@@ -68,13 +67,9 @@
 	],
 	"license": "MIT",
 	"author": "Guillem Puche",
-	"bugs": "https://github.com/guillempuche/app-asset-generator/issues",
+	"bugs": "https://github.com/guillempuche/appicons/issues",
 	"engines": {
 		"node": ">=22"
 	},
-	"files": [
-		"dist",
-		"README.md"
-	],
-	"homepage": "https://github.com/guillempuche/app-asset-generator#readme"
+	"homepage": "https://github.com/guillempuche/appicons#readme"
 }

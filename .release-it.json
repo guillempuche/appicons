@@ -6,7 +6,7 @@
 		"requireCleanWorkingDir": true
 	},
 	"npm": {
-		"publish": true
+		"publish": false
 	},
 	"github": {
 		"release": true,

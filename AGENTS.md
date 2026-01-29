@@ -1,6 +1,12 @@
-# App Asset Generator - Agent Reference
+# appicons - Agent Reference
 
 Reference documentation for AI agents working with this codebase.
+
+## Installation
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/install.sh | bash
+```
 
 ## Architecture
 

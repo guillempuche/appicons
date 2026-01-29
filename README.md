@@ -1,12 +1,24 @@
-# App Asset Generator
+# appicons
 
-[![npm version](https://img.shields.io/npm/v/app-asset-generator.svg)](https://www.npmjs.com/package/app-asset-generator)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Generate all required app assets (icons, splash screens, adaptive icons, favicons) for iOS, Android, and Web platforms from a single configuration.
 
+## Installation
+
 ```bash
-npm install -g app-asset-generator
+curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/install.sh | bash
+```
+
+This installs:
+- Bun runtime (if not already installed)
+- appicons binary to `~/.appicons`
+- Symlink to `/usr/local/bin/appicons`
+
+### Uninstall
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/uninstall.sh | bash
 ```
 
 ## Features
@@ -33,26 +45,12 @@ npm install -g app-asset-generator
 - **JSON Output**: Machine-readable output for programmatic usage
 - **Smart Validation**: Typo detection with suggestions for Google Font names
 
-## Installation
-
-```bash
-npm install -g app-asset-generator
-```
-
-Or with other package managers:
-
-```bash
-pnpm add -g app-asset-generator
-yarn global add app-asset-generator
-bun add -g app-asset-generator
-```
-
 ## Usage
 
 ### Interactive Mode (Recommended)
 
 ```bash
-app-asset-generator
+appicons
 ```
 
 The TUI will guide you through:
@@ -68,7 +66,7 @@ The TUI will guide you through:
 #### Available Commands
 
 ```bash
-app-asset-generator [command] [options]
+appicons [command] [options]
 
 Commands:
   (no command)      Launch interactive OpenTUI interface (default)
@@ -84,16 +82,16 @@ Commands:
 
 ```bash
 # Simple generation with defaults
-app-asset-generator generate
+appicons generate
 
 # Customize text and color
-app-asset-generator generate \
+appicons generate \
   --fg-text "X" \
   --fg-color "#004C6E" \
   --bg-color "#FFFFFF"
 
 # Full configuration with Google Font
-app-asset-generator generate \
+appicons generate \
   --name "MyApp" \
   --fg-text "M" \
   --fg-font "Inter" \
@@ -103,45 +101,45 @@ app-asset-generator generate \
   --platforms "ios,android,web"
 
 # Gradient background
-app-asset-generator generate \
+appicons generate \
   --bg-type gradient \
   --bg-gradient-colors "#667eea,#764ba2" \
   --bg-gradient-angle 135 \
-  --fg-text "●" \
+  --fg-text "o" \
   --fg-color "#FFFFFF"
 
 # SVG icon
-app-asset-generator generate \
+appicons generate \
   --bg-color "#FFFFFF" \
   --fg-type svg \
   --fg-svg ./logo.svg \
   --fg-svg-color "#000000"
 
 # Dry-run (validate without generating)
-app-asset-generator generate --dry-run
+appicons generate --dry-run
 
 # JSON output for AI agents
-app-asset-generator generate --format json
+appicons generate --format json
 ```
 
 #### Other Commands
 
 ```bash
 # List available Google Fonts
-app-asset-generator list-fonts
+appicons list-fonts
 
 # Show platform specifications
-app-asset-generator list-platforms
+appicons list-platforms
 
 # Validate configuration
-app-asset-generator validate --fg-font "Inter" --fg-font-source google
+appicons validate --fg-font "Inter" --fg-font-source google
 
 # Show integration instructions
-app-asset-generator instructions --platforms ios,android
+appicons instructions --platforms ios,android
 
 # Generate shell completion script
-app-asset-generator completion >> ~/.bashrc  # bash
-app-asset-generator completion >> ~/.zshrc   # zsh
+appicons completion >> ~/.bashrc  # bash
+appicons completion >> ~/.zshrc   # zsh
 ```
 
 ## Output Structure
@@ -170,7 +168,7 @@ assets/generated-YYYYMMDD-HHMMSS/
 │   ├── apple-touch-icon-180x180.png
 │   ├── android-chrome-512x512.png
 │   └── ...
-└── INSTRUCTIONS.md  ← Integration guide
+└── INSTRUCTIONS.md  <- Integration guide
 ```
 
 ## Platform Specifications
@@ -201,7 +199,7 @@ assets/generated-YYYYMMDD-HHMMSS/
 
 1. **Icon Design**: Keep your foreground simple and centered. Test at small sizes (20px) to ensure visibility.
 
-2. **Adaptive Icons**: Android crops icons to various shapes (circle, square, rounded square). The safe zone is the inner 66×66 dp (about 60% of canvas).
+2. **Adaptive Icons**: Android crops icons to various shapes (circle, square, rounded square). The safe zone is the inner 66x66 dp (about 60% of canvas).
 
 3. **Splash Screens**: The foreground is automatically sized to 25% of screen width/height for visibility.
 

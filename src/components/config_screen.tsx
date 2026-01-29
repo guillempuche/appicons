@@ -29,7 +29,6 @@ import type {
 } from '../types'
 import {
 	fontExists,
-	getGoogleFontsUrl,
 	initGoogleFonts,
 	normalizeFontFamily,
 	searchFonts,
@@ -58,23 +57,6 @@ function autocompleteFonts(query: string): string[] {
 function truncate(text: string, maxLen: number): string {
 	if (text.length <= maxLen) return text
 	return text.slice(0, maxLen - 3) + '...'
-}
-
-/**
- * Create a clickable terminal hyperlink using OSC 8 escape sequence.
- *
- * Supported by: iTerm2, VS Code terminal, GNOME Terminal, Windows Terminal,
- * Hyper, Alacritty (0.11+), Kitty, and most modern terminal emulators.
- *
- * Format: \x1b]8;;URL\x07DISPLAY_TEXT\x1b]8;;\x07
- *
- * @param url - The URL to link to
- * @param displayText - Text to display (defaults to URL if not provided)
- * @returns Terminal escape sequence for clickable link
- */
-function terminalLink(url: string, displayText?: string): string {
-	const text = displayText || url
-	return `\x1b]8;;${url}\x07${text}\x1b]8;;\x07`
 }
 
 // ─── Layout Constants ──────────────────────────────────────────────────────
@@ -391,12 +373,6 @@ export function ConfigScreen({
 	// Determine layout based on terminal width.
 	const showPreview = terminalWidth >= BREAKPOINTS.medium
 	const sideBySide = terminalWidth >= BREAKPOINTS.wide
-
-	// Compute Google Fonts preview URL for clickable link.
-	const fontPreviewUrl = useMemo(() => {
-		const isValidFont = fontsLoaded && fontExists(fgFont)
-		return getGoogleFontsUrl(isValidFont ? fgFont : null, fgText || '"')
-	}, [fgFont, fgText, fontsLoaded])
 
 	/**
 	 * Compute visible fields based on current type selections.
@@ -779,10 +755,6 @@ export function ConfigScreen({
 							) : (
 								<text fg={colors.tip}>💡 {currentField?.tip}</text>
 							)}
-							{/* Google Fonts preview link - clickable via OSC 8 */}
-							<text wrapMode='char'>
-								{terminalLink(fontPreviewUrl, `🔗 ${fontPreviewUrl}`)}
-							</text>
 						</>
 					) : (
 						<text fg={colors.tip}>💡 {currentField?.tip}</text>
