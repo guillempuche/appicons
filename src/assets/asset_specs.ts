@@ -28,9 +28,15 @@ import type { AssetSpec, ColorMode } from '../types'
  */
 export const IOS_ICONS: AssetSpec[] = [
 	// Notification
-	{ name: 'icon-20.png', width: 20, height: 20, platform: 'ios', type: 'icon' },
 	{
-		name: 'icon-20@2x.png',
+		name: 'ios/icon-20.png',
+		width: 20,
+		height: 20,
+		platform: 'ios',
+		type: 'icon',
+	},
+	{
+		name: 'ios/icon-20@2x.png',
 		width: 40,
 		height: 40,
 		platform: 'ios',
@@ -38,7 +44,7 @@ export const IOS_ICONS: AssetSpec[] = [
 		scale: 2,
 	},
 	{
-		name: 'icon-20@3x.png',
+		name: 'ios/icon-20@3x.png',
 		width: 60,
 		height: 60,
 		platform: 'ios',
@@ -47,9 +53,15 @@ export const IOS_ICONS: AssetSpec[] = [
 	},
 
 	// Settings
-	{ name: 'icon-29.png', width: 29, height: 29, platform: 'ios', type: 'icon' },
 	{
-		name: 'icon-29@2x.png',
+		name: 'ios/icon-29.png',
+		width: 29,
+		height: 29,
+		platform: 'ios',
+		type: 'icon',
+	},
+	{
+		name: 'ios/icon-29@2x.png',
 		width: 58,
 		height: 58,
 		platform: 'ios',
@@ -57,7 +69,7 @@ export const IOS_ICONS: AssetSpec[] = [
 		scale: 2,
 	},
 	{
-		name: 'icon-29@3x.png',
+		name: 'ios/icon-29@3x.png',
 		width: 87,
 		height: 87,
 		platform: 'ios',
@@ -66,9 +78,15 @@ export const IOS_ICONS: AssetSpec[] = [
 	},
 
 	// Spotlight
-	{ name: 'icon-40.png', width: 40, height: 40, platform: 'ios', type: 'icon' },
 	{
-		name: 'icon-40@2x.png',
+		name: 'ios/icon-40.png',
+		width: 40,
+		height: 40,
+		platform: 'ios',
+		type: 'icon',
+	},
+	{
+		name: 'ios/icon-40@2x.png',
 		width: 80,
 		height: 80,
 		platform: 'ios',
@@ -76,7 +94,7 @@ export const IOS_ICONS: AssetSpec[] = [
 		scale: 2,
 	},
 	{
-		name: 'icon-40@3x.png',
+		name: 'ios/icon-40@3x.png',
 		width: 120,
 		height: 120,
 		platform: 'ios',
@@ -86,7 +104,7 @@ export const IOS_ICONS: AssetSpec[] = [
 
 	// App Icon (iPhone)
 	{
-		name: 'icon-60@2x.png',
+		name: 'ios/icon-60@2x.png',
 		width: 120,
 		height: 120,
 		platform: 'ios',
@@ -94,7 +112,7 @@ export const IOS_ICONS: AssetSpec[] = [
 		scale: 2,
 	},
 	{
-		name: 'icon-60@3x.png',
+		name: 'ios/icon-60@3x.png',
 		width: 180,
 		height: 180,
 		platform: 'ios',
@@ -103,9 +121,15 @@ export const IOS_ICONS: AssetSpec[] = [
 	},
 
 	// App Icon (iPad)
-	{ name: 'icon-76.png', width: 76, height: 76, platform: 'ios', type: 'icon' },
 	{
-		name: 'icon-76@2x.png',
+		name: 'ios/icon-76.png',
+		width: 76,
+		height: 76,
+		platform: 'ios',
+		type: 'icon',
+	},
+	{
+		name: 'ios/icon-76@2x.png',
 		width: 152,
 		height: 152,
 		platform: 'ios',
@@ -115,7 +139,7 @@ export const IOS_ICONS: AssetSpec[] = [
 
 	// iPad Pro
 	{
-		name: 'icon-83.5@2x.png',
+		name: 'ios/icon-83.5@2x.png',
 		width: 167,
 		height: 167,
 		platform: 'ios',
@@ -125,7 +149,7 @@ export const IOS_ICONS: AssetSpec[] = [
 
 	// App Store
 	{
-		name: 'icon-1024.png',
+		name: 'ios/icon-1024.png',
 		width: 1024,
 		height: 1024,
 		platform: 'ios',
@@ -143,7 +167,7 @@ export const IOS_ICONS: AssetSpec[] = [
 export const IOS_ICONS_DARK: AssetSpec[] = [
 	// Main dark icons (most commonly needed sizes)
 	{
-		name: 'dark/icon-60@2x.png',
+		name: 'ios/dark/icon-60@2x.png',
 		width: 120,
 		height: 120,
 		platform: 'ios',
@@ -152,7 +176,7 @@ export const IOS_ICONS_DARK: AssetSpec[] = [
 		colorMode: 'dark',
 	},
 	{
-		name: 'dark/icon-60@3x.png',
+		name: 'ios/dark/icon-60@3x.png',
 		width: 180,
 		height: 180,
 		platform: 'ios',
@@ -161,7 +185,7 @@ export const IOS_ICONS_DARK: AssetSpec[] = [
 		colorMode: 'dark',
 	},
 	{
-		name: 'dark/icon-76@2x.png',
+		name: 'ios/dark/icon-76@2x.png',
 		width: 152,
 		height: 152,
 		platform: 'ios',
@@ -170,7 +194,7 @@ export const IOS_ICONS_DARK: AssetSpec[] = [
 		colorMode: 'dark',
 	},
 	{
-		name: 'dark/icon-83.5@2x.png',
+		name: 'ios/dark/icon-83.5@2x.png',
 		width: 167,
 		height: 167,
 		platform: 'ios',
@@ -179,12 +203,175 @@ export const IOS_ICONS_DARK: AssetSpec[] = [
 		colorMode: 'dark',
 	},
 	{
-		name: 'dark/icon-1024.png',
+		name: 'ios/dark/icon-1024.png',
 		width: 1024,
 		height: 1024,
 		platform: 'ios',
 		type: 'icon',
 		colorMode: 'dark',
+	},
+]
+
+// ─── iOS Tinted App Icons (iOS 18+) ────────────────────────────────────────
+
+/**
+ * iOS 18+ tinted app icons.
+ * Monochrome icons where the system applies the user's wallpaper tint color.
+ * Generated as white foreground on transparent background.
+ * Placed in tinted/ subfolder for Xcode asset catalog.
+ */
+export const IOS_ICONS_TINTED: AssetSpec[] = [
+	{
+		name: 'ios/tinted/icon-60@2x.png',
+		width: 120,
+		height: 120,
+		platform: 'ios',
+		type: 'icon',
+		scale: 2,
+		colorMode: 'tinted',
+	},
+	{
+		name: 'ios/tinted/icon-60@3x.png',
+		width: 180,
+		height: 180,
+		platform: 'ios',
+		type: 'icon',
+		scale: 3,
+		colorMode: 'tinted',
+	},
+	{
+		name: 'ios/tinted/icon-76@2x.png',
+		width: 152,
+		height: 152,
+		platform: 'ios',
+		type: 'icon',
+		scale: 2,
+		colorMode: 'tinted',
+	},
+	{
+		name: 'ios/tinted/icon-83.5@2x.png',
+		width: 167,
+		height: 167,
+		platform: 'ios',
+		type: 'icon',
+		scale: 2,
+		colorMode: 'tinted',
+	},
+	{
+		name: 'ios/tinted/icon-1024.png',
+		width: 1024,
+		height: 1024,
+		platform: 'ios',
+		type: 'icon',
+		colorMode: 'tinted',
+	},
+]
+
+// ─── iOS Clear Light App Icons (iOS 18+) ───────────────────────────────────
+
+/**
+ * iOS 18+ clear light app icons.
+ * Translucent background for light mode with semi-transparent white.
+ * Placed in clear-light/ subfolder for Xcode asset catalog.
+ */
+export const IOS_ICONS_CLEAR_LIGHT: AssetSpec[] = [
+	{
+		name: 'ios/clear-light/icon-60@2x.png',
+		width: 120,
+		height: 120,
+		platform: 'ios',
+		type: 'icon',
+		scale: 2,
+		colorMode: 'clear-light',
+	},
+	{
+		name: 'ios/clear-light/icon-60@3x.png',
+		width: 180,
+		height: 180,
+		platform: 'ios',
+		type: 'icon',
+		scale: 3,
+		colorMode: 'clear-light',
+	},
+	{
+		name: 'ios/clear-light/icon-76@2x.png',
+		width: 152,
+		height: 152,
+		platform: 'ios',
+		type: 'icon',
+		scale: 2,
+		colorMode: 'clear-light',
+	},
+	{
+		name: 'ios/clear-light/icon-83.5@2x.png',
+		width: 167,
+		height: 167,
+		platform: 'ios',
+		type: 'icon',
+		scale: 2,
+		colorMode: 'clear-light',
+	},
+	{
+		name: 'ios/clear-light/icon-1024.png',
+		width: 1024,
+		height: 1024,
+		platform: 'ios',
+		type: 'icon',
+		colorMode: 'clear-light',
+	},
+]
+
+// ─── iOS Clear Dark App Icons (iOS 18+) ────────────────────────────────────
+
+/**
+ * iOS 18+ clear dark app icons.
+ * Translucent background for dark mode with semi-transparent black.
+ * Placed in clear-dark/ subfolder for Xcode asset catalog.
+ */
+export const IOS_ICONS_CLEAR_DARK: AssetSpec[] = [
+	{
+		name: 'ios/clear-dark/icon-60@2x.png',
+		width: 120,
+		height: 120,
+		platform: 'ios',
+		type: 'icon',
+		scale: 2,
+		colorMode: 'clear-dark',
+	},
+	{
+		name: 'ios/clear-dark/icon-60@3x.png',
+		width: 180,
+		height: 180,
+		platform: 'ios',
+		type: 'icon',
+		scale: 3,
+		colorMode: 'clear-dark',
+	},
+	{
+		name: 'ios/clear-dark/icon-76@2x.png',
+		width: 152,
+		height: 152,
+		platform: 'ios',
+		type: 'icon',
+		scale: 2,
+		colorMode: 'clear-dark',
+	},
+	{
+		name: 'ios/clear-dark/icon-83.5@2x.png',
+		width: 167,
+		height: 167,
+		platform: 'ios',
+		type: 'icon',
+		scale: 2,
+		colorMode: 'clear-dark',
+	},
+	{
+		name: 'ios/clear-dark/icon-1024.png',
+		width: 1024,
+		height: 1024,
+		platform: 'ios',
+		type: 'icon',
+		colorMode: 'clear-dark',
 	},
 ]
 
@@ -197,7 +384,7 @@ export const IOS_ICONS_DARK: AssetSpec[] = [
 export const IOS_SPLASH: AssetSpec[] = [
 	// iPhone 15 Pro Max, 14 Pro Max, 13 Pro Max
 	{
-		name: 'splash-1290x2796.png',
+		name: 'ios/splash-1290x2796.png',
 		width: 1290,
 		height: 2796,
 		platform: 'ios',
@@ -206,7 +393,7 @@ export const IOS_SPLASH: AssetSpec[] = [
 
 	// iPhone 15 Pro, 14 Pro, 13 Pro, 12 Pro
 	{
-		name: 'splash-1179x2556.png',
+		name: 'ios/splash-1179x2556.png',
 		width: 1179,
 		height: 2556,
 		platform: 'ios',
@@ -215,7 +402,7 @@ export const IOS_SPLASH: AssetSpec[] = [
 
 	// iPhone 15, 14, 13, 12
 	{
-		name: 'splash-1170x2532.png',
+		name: 'ios/splash-1170x2532.png',
 		width: 1170,
 		height: 2532,
 		platform: 'ios',
@@ -224,7 +411,7 @@ export const IOS_SPLASH: AssetSpec[] = [
 
 	// iPhone 11 Pro Max, XS Max
 	{
-		name: 'splash-1242x2688.png',
+		name: 'ios/splash-1242x2688.png',
 		width: 1242,
 		height: 2688,
 		platform: 'ios',
@@ -233,7 +420,7 @@ export const IOS_SPLASH: AssetSpec[] = [
 
 	// iPhone 11 Pro, X, XS
 	{
-		name: 'splash-1125x2436.png',
+		name: 'ios/splash-1125x2436.png',
 		width: 1125,
 		height: 2436,
 		platform: 'ios',
@@ -242,7 +429,7 @@ export const IOS_SPLASH: AssetSpec[] = [
 
 	// iPhone 11, XR
 	{
-		name: 'splash-828x1792.png',
+		name: 'ios/splash-828x1792.png',
 		width: 828,
 		height: 1792,
 		platform: 'ios',
@@ -251,7 +438,7 @@ export const IOS_SPLASH: AssetSpec[] = [
 
 	// iPhone 8 Plus, 7 Plus, 6s Plus
 	{
-		name: 'splash-1242x2208.png',
+		name: 'ios/splash-1242x2208.png',
 		width: 1242,
 		height: 2208,
 		platform: 'ios',
@@ -260,7 +447,7 @@ export const IOS_SPLASH: AssetSpec[] = [
 
 	// iPhone 8, 7, 6s, SE (2nd/3rd gen)
 	{
-		name: 'splash-750x1334.png',
+		name: 'ios/splash-750x1334.png',
 		width: 750,
 		height: 1334,
 		platform: 'ios',
@@ -269,7 +456,7 @@ export const IOS_SPLASH: AssetSpec[] = [
 
 	// iPhone SE (1st gen), iPod touch
 	{
-		name: 'splash-640x1136.png',
+		name: 'ios/splash-640x1136.png',
 		width: 640,
 		height: 1136,
 		platform: 'ios',
@@ -278,7 +465,7 @@ export const IOS_SPLASH: AssetSpec[] = [
 
 	// iPad Pro 12.9" (3rd-6th gen)
 	{
-		name: 'splash-2048x2732.png',
+		name: 'ios/splash-2048x2732.png',
 		width: 2048,
 		height: 2732,
 		platform: 'ios',
@@ -287,7 +474,7 @@ export const IOS_SPLASH: AssetSpec[] = [
 
 	// iPad Pro 11" (1st-4th gen)
 	{
-		name: 'splash-1668x2388.png',
+		name: 'ios/splash-1668x2388.png',
 		width: 1668,
 		height: 2388,
 		platform: 'ios',
@@ -296,7 +483,7 @@ export const IOS_SPLASH: AssetSpec[] = [
 
 	// iPad Pro 10.5", Air (3rd gen)
 	{
-		name: 'splash-1668x2224.png',
+		name: 'ios/splash-1668x2224.png',
 		width: 1668,
 		height: 2224,
 		platform: 'ios',
@@ -305,7 +492,7 @@ export const IOS_SPLASH: AssetSpec[] = [
 
 	// iPad Mini (6th gen), iPad (9th-10th gen)
 	{
-		name: 'splash-1536x2048.png',
+		name: 'ios/splash-1536x2048.png',
 		width: 1536,
 		height: 2048,
 		platform: 'ios',
@@ -321,35 +508,35 @@ export const IOS_SPLASH: AssetSpec[] = [
  */
 export const ANDROID_ICONS: AssetSpec[] = [
 	{
-		name: 'mipmap-mdpi/ic_launcher.png',
+		name: 'android/mipmap-mdpi/ic_launcher.png',
 		width: 48,
 		height: 48,
 		platform: 'android',
 		type: 'icon',
 	},
 	{
-		name: 'mipmap-hdpi/ic_launcher.png',
+		name: 'android/mipmap-hdpi/ic_launcher.png',
 		width: 72,
 		height: 72,
 		platform: 'android',
 		type: 'icon',
 	},
 	{
-		name: 'mipmap-xhdpi/ic_launcher.png',
+		name: 'android/mipmap-xhdpi/ic_launcher.png',
 		width: 96,
 		height: 96,
 		platform: 'android',
 		type: 'icon',
 	},
 	{
-		name: 'mipmap-xxhdpi/ic_launcher.png',
+		name: 'android/mipmap-xxhdpi/ic_launcher.png',
 		width: 144,
 		height: 144,
 		platform: 'android',
 		type: 'icon',
 	},
 	{
-		name: 'mipmap-xxxhdpi/ic_launcher.png',
+		name: 'android/mipmap-xxxhdpi/ic_launcher.png',
 		width: 192,
 		height: 192,
 		platform: 'android',
@@ -371,35 +558,35 @@ export const ANDROID_ICONS: AssetSpec[] = [
 export const ANDROID_ADAPTIVE_ICONS: AssetSpec[] = [
 	// Foreground layer (transparent PNG with icon)
 	{
-		name: 'mipmap-mdpi/ic_launcher_foreground.png',
+		name: 'android/mipmap-mdpi/ic_launcher_foreground.png',
 		width: 108,
 		height: 108,
 		platform: 'android',
 		type: 'adaptive',
 	},
 	{
-		name: 'mipmap-hdpi/ic_launcher_foreground.png',
+		name: 'android/mipmap-hdpi/ic_launcher_foreground.png',
 		width: 162,
 		height: 162,
 		platform: 'android',
 		type: 'adaptive',
 	},
 	{
-		name: 'mipmap-xhdpi/ic_launcher_foreground.png',
+		name: 'android/mipmap-xhdpi/ic_launcher_foreground.png',
 		width: 216,
 		height: 216,
 		platform: 'android',
 		type: 'adaptive',
 	},
 	{
-		name: 'mipmap-xxhdpi/ic_launcher_foreground.png',
+		name: 'android/mipmap-xxhdpi/ic_launcher_foreground.png',
 		width: 324,
 		height: 324,
 		platform: 'android',
 		type: 'adaptive',
 	},
 	{
-		name: 'mipmap-xxxhdpi/ic_launcher_foreground.png',
+		name: 'android/mipmap-xxxhdpi/ic_launcher_foreground.png',
 		width: 432,
 		height: 432,
 		platform: 'android',
@@ -408,35 +595,35 @@ export const ANDROID_ADAPTIVE_ICONS: AssetSpec[] = [
 
 	// Background layer (can be color or image)
 	{
-		name: 'mipmap-mdpi/ic_launcher_background.png',
+		name: 'android/mipmap-mdpi/ic_launcher_background.png',
 		width: 108,
 		height: 108,
 		platform: 'android',
 		type: 'adaptive',
 	},
 	{
-		name: 'mipmap-hdpi/ic_launcher_background.png',
+		name: 'android/mipmap-hdpi/ic_launcher_background.png',
 		width: 162,
 		height: 162,
 		platform: 'android',
 		type: 'adaptive',
 	},
 	{
-		name: 'mipmap-xhdpi/ic_launcher_background.png',
+		name: 'android/mipmap-xhdpi/ic_launcher_background.png',
 		width: 216,
 		height: 216,
 		platform: 'android',
 		type: 'adaptive',
 	},
 	{
-		name: 'mipmap-xxhdpi/ic_launcher_background.png',
+		name: 'android/mipmap-xxhdpi/ic_launcher_background.png',
 		width: 324,
 		height: 324,
 		platform: 'android',
 		type: 'adaptive',
 	},
 	{
-		name: 'mipmap-xxxhdpi/ic_launcher_background.png',
+		name: 'android/mipmap-xxxhdpi/ic_launcher_background.png',
 		width: 432,
 		height: 432,
 		platform: 'android',
@@ -452,35 +639,35 @@ export const ANDROID_ADAPTIVE_ICONS: AssetSpec[] = [
  */
 export const ANDROID_SPLASH: AssetSpec[] = [
 	{
-		name: 'drawable-mdpi/splash.png',
+		name: 'android/drawable-mdpi/splash.png',
 		width: 320,
 		height: 480,
 		platform: 'android',
 		type: 'splash',
 	},
 	{
-		name: 'drawable-hdpi/splash.png',
+		name: 'android/drawable-hdpi/splash.png',
 		width: 480,
 		height: 800,
 		platform: 'android',
 		type: 'splash',
 	},
 	{
-		name: 'drawable-xhdpi/splash.png',
+		name: 'android/drawable-xhdpi/splash.png',
 		width: 720,
 		height: 1280,
 		platform: 'android',
 		type: 'splash',
 	},
 	{
-		name: 'drawable-xxhdpi/splash.png',
+		name: 'android/drawable-xxhdpi/splash.png',
 		width: 1080,
 		height: 1920,
 		platform: 'android',
 		type: 'splash',
 	},
 	{
-		name: 'drawable-xxxhdpi/splash.png',
+		name: 'android/drawable-xxxhdpi/splash.png',
 		width: 1440,
 		height: 2560,
 		platform: 'android',
@@ -496,7 +683,7 @@ export const ANDROID_SPLASH: AssetSpec[] = [
  */
 export const ANDROID_SPLASH_DARK: AssetSpec[] = [
 	{
-		name: 'drawable-night-mdpi/splash.png',
+		name: 'android/drawable-night-mdpi/splash.png',
 		width: 320,
 		height: 480,
 		platform: 'android',
@@ -504,7 +691,7 @@ export const ANDROID_SPLASH_DARK: AssetSpec[] = [
 		colorMode: 'dark',
 	},
 	{
-		name: 'drawable-night-hdpi/splash.png',
+		name: 'android/drawable-night-hdpi/splash.png',
 		width: 480,
 		height: 800,
 		platform: 'android',
@@ -512,7 +699,7 @@ export const ANDROID_SPLASH_DARK: AssetSpec[] = [
 		colorMode: 'dark',
 	},
 	{
-		name: 'drawable-night-xhdpi/splash.png',
+		name: 'android/drawable-night-xhdpi/splash.png',
 		width: 720,
 		height: 1280,
 		platform: 'android',
@@ -520,7 +707,7 @@ export const ANDROID_SPLASH_DARK: AssetSpec[] = [
 		colorMode: 'dark',
 	},
 	{
-		name: 'drawable-night-xxhdpi/splash.png',
+		name: 'android/drawable-night-xxhdpi/splash.png',
 		width: 1080,
 		height: 1920,
 		platform: 'android',
@@ -528,7 +715,7 @@ export const ANDROID_SPLASH_DARK: AssetSpec[] = [
 		colorMode: 'dark',
 	},
 	{
-		name: 'drawable-night-xxxhdpi/splash.png',
+		name: 'android/drawable-night-xxxhdpi/splash.png',
 		width: 1440,
 		height: 2560,
 		platform: 'android',
@@ -546,7 +733,7 @@ export const ANDROID_SPLASH_DARK: AssetSpec[] = [
  */
 export const ANDROID_MONOCHROME_ICONS: AssetSpec[] = [
 	{
-		name: 'mipmap-mdpi/ic_launcher_monochrome.png',
+		name: 'android/mipmap-mdpi/ic_launcher_monochrome.png',
 		width: 108,
 		height: 108,
 		platform: 'android',
@@ -554,7 +741,7 @@ export const ANDROID_MONOCHROME_ICONS: AssetSpec[] = [
 		colorMode: 'any',
 	},
 	{
-		name: 'mipmap-hdpi/ic_launcher_monochrome.png',
+		name: 'android/mipmap-hdpi/ic_launcher_monochrome.png',
 		width: 162,
 		height: 162,
 		platform: 'android',
@@ -562,7 +749,7 @@ export const ANDROID_MONOCHROME_ICONS: AssetSpec[] = [
 		colorMode: 'any',
 	},
 	{
-		name: 'mipmap-xhdpi/ic_launcher_monochrome.png',
+		name: 'android/mipmap-xhdpi/ic_launcher_monochrome.png',
 		width: 216,
 		height: 216,
 		platform: 'android',
@@ -570,7 +757,7 @@ export const ANDROID_MONOCHROME_ICONS: AssetSpec[] = [
 		colorMode: 'any',
 	},
 	{
-		name: 'mipmap-xxhdpi/ic_launcher_monochrome.png',
+		name: 'android/mipmap-xxhdpi/ic_launcher_monochrome.png',
 		width: 324,
 		height: 324,
 		platform: 'android',
@@ -578,7 +765,7 @@ export const ANDROID_MONOCHROME_ICONS: AssetSpec[] = [
 		colorMode: 'any',
 	},
 	{
-		name: 'mipmap-xxxhdpi/ic_launcher_monochrome.png',
+		name: 'android/mipmap-xxxhdpi/ic_launcher_monochrome.png',
 		width: 432,
 		height: 432,
 		platform: 'android',
@@ -596,21 +783,21 @@ export const ANDROID_MONOCHROME_ICONS: AssetSpec[] = [
 export const WEB_FAVICONS: AssetSpec[] = [
 	// Standard favicons
 	{
-		name: 'favicon-16x16.png',
+		name: 'web/favicon-16x16.png',
 		width: 16,
 		height: 16,
 		platform: 'web',
 		type: 'favicon',
 	},
 	{
-		name: 'favicon-32x32.png',
+		name: 'web/favicon-32x32.png',
 		width: 32,
 		height: 32,
 		platform: 'web',
 		type: 'favicon',
 	},
 	{
-		name: 'favicon-48x48.png',
+		name: 'web/favicon-48x48.png',
 		width: 48,
 		height: 48,
 		platform: 'web',
@@ -619,83 +806,119 @@ export const WEB_FAVICONS: AssetSpec[] = [
 
 	// Apple Touch Icons
 	{
-		name: 'apple-touch-icon-57x57.png',
+		name: 'web/apple-touch-icon-57x57.png',
 		width: 57,
 		height: 57,
 		platform: 'web',
 		type: 'favicon',
 	},
 	{
-		name: 'apple-touch-icon-60x60.png',
+		name: 'web/apple-touch-icon-60x60.png',
 		width: 60,
 		height: 60,
 		platform: 'web',
 		type: 'favicon',
 	},
 	{
-		name: 'apple-touch-icon-72x72.png',
+		name: 'web/apple-touch-icon-72x72.png',
 		width: 72,
 		height: 72,
 		platform: 'web',
 		type: 'favicon',
 	},
 	{
-		name: 'apple-touch-icon-76x76.png',
+		name: 'web/apple-touch-icon-76x76.png',
 		width: 76,
 		height: 76,
 		platform: 'web',
 		type: 'favicon',
 	},
 	{
-		name: 'apple-touch-icon-114x114.png',
+		name: 'web/apple-touch-icon-114x114.png',
 		width: 114,
 		height: 114,
 		platform: 'web',
 		type: 'favicon',
 	},
 	{
-		name: 'apple-touch-icon-120x120.png',
+		name: 'web/apple-touch-icon-120x120.png',
 		width: 120,
 		height: 120,
 		platform: 'web',
 		type: 'favicon',
 	},
 	{
-		name: 'apple-touch-icon-144x144.png',
+		name: 'web/apple-touch-icon-144x144.png',
 		width: 144,
 		height: 144,
 		platform: 'web',
 		type: 'favicon',
 	},
 	{
-		name: 'apple-touch-icon-152x152.png',
+		name: 'web/apple-touch-icon-152x152.png',
 		width: 152,
 		height: 152,
 		platform: 'web',
 		type: 'favicon',
 	},
 	{
-		name: 'apple-touch-icon-180x180.png',
+		name: 'web/apple-touch-icon-180x180.png',
 		width: 180,
 		height: 180,
 		platform: 'web',
 		type: 'favicon',
 	},
 
-	// PWA icons
+	// PWA icons (any purpose - standard icons)
 	{
-		name: 'android-chrome-192x192.png',
+		name: 'web/icon-192x192.png',
 		width: 192,
 		height: 192,
 		platform: 'web',
 		type: 'favicon',
 	},
 	{
-		name: 'android-chrome-512x512.png',
+		name: 'web/icon-512x512.png',
 		width: 512,
 		height: 512,
 		platform: 'web',
 		type: 'favicon',
+	},
+
+	// PWA maskable icons (safe zone aware, for adaptive icon display)
+	{
+		name: 'web/icon-maskable-192x192.png',
+		width: 192,
+		height: 192,
+		platform: 'web',
+		type: 'favicon',
+		colorMode: 'any', // Indicates maskable (safe zone aware)
+	},
+	{
+		name: 'web/icon-maskable-512x512.png',
+		width: 512,
+		height: 512,
+		platform: 'web',
+		type: 'favicon',
+		colorMode: 'any', // Indicates maskable (safe zone aware)
+	},
+
+	// PWA monochrome icons (for themed/tinted display)
+	{
+		name: 'web/icon-monochrome-192x192.png',
+		width: 192,
+		height: 192,
+		platform: 'web',
+		type: 'favicon',
+		colorMode: 'tinted', // Indicates monochrome
+	},
+	{
+		name: 'web/icon-monochrome-512x512.png',
+		width: 512,
+		height: 512,
+		platform: 'web',
+		type: 'favicon',
+		colorMode: 'tinted', // Indicates monochrome
 	},
 ]
 
@@ -719,20 +942,37 @@ export function getAssetsByPlatform(
 }
 
 /**
- * Get dark mode asset specifications for a given platform.
- * Only returns specs that have colorMode: 'dark' or 'any'.
+ * Get all variant (dark, tinted, clear) asset specifications for a given platform.
+ * Returns specs that have colorMode set to any non-light value.
  */
-export function getDarkAssetsByPlatform(
+export function getVariantAssetsByPlatform(
 	platform: 'ios' | 'android' | 'web',
 ): AssetSpec[] {
 	switch (platform) {
 		case 'ios':
-			return [...IOS_ICONS_DARK]
+			return [
+				...IOS_ICONS_DARK,
+				...IOS_ICONS_TINTED,
+				...IOS_ICONS_CLEAR_LIGHT,
+				...IOS_ICONS_CLEAR_DARK,
+			]
 		case 'android':
 			return [...ANDROID_SPLASH_DARK, ...ANDROID_MONOCHROME_ICONS]
 		case 'web':
-			return [] // Web uses CSS prefers-color-scheme, no separate assets
+			// Web maskable and monochrome icons are included in WEB_FAVICONS
+			// They have colorMode set to identify their purpose
+			return WEB_FAVICONS.filter(spec => spec.colorMode !== undefined)
 	}
+}
+
+/**
+ * @deprecated Use getVariantAssetsByPlatform instead.
+ * Get dark mode asset specifications for a given platform.
+ */
+export function getDarkAssetsByPlatform(
+	platform: 'ios' | 'android' | 'web',
+): AssetSpec[] {
+	return getVariantAssetsByPlatform(platform)
 }
 
 /**
@@ -754,21 +994,37 @@ export function getAssetsByType(
 }
 
 /**
- * Get dark mode asset specifications for a given type.
+ * Get all variant (dark, tinted, clear) asset specifications for a given type.
  */
-export function getDarkAssetsByType(
+export function getVariantAssetsByType(
 	type: 'icon' | 'splash' | 'adaptive' | 'favicon',
 ): AssetSpec[] {
 	switch (type) {
 		case 'icon':
-			return [...IOS_ICONS_DARK]
+			return [
+				...IOS_ICONS_DARK,
+				...IOS_ICONS_TINTED,
+				...IOS_ICONS_CLEAR_LIGHT,
+				...IOS_ICONS_CLEAR_DARK,
+			]
 		case 'splash':
 			return [...ANDROID_SPLASH_DARK]
 		case 'adaptive':
 			return ANDROID_MONOCHROME_ICONS
 		case 'favicon':
-			return [] // Web uses CSS, no separate dark favicons
+			// Web maskable and monochrome icons
+			return WEB_FAVICONS.filter(spec => spec.colorMode !== undefined)
 	}
+}
+
+/**
+ * @deprecated Use getVariantAssetsByType instead.
+ * Get dark mode asset specifications for a given type.
+ */
+export function getDarkAssetsByType(
+	type: 'icon' | 'splash' | 'adaptive' | 'favicon',
+): AssetSpec[] {
+	return getVariantAssetsByType(type)
 }
 
 /**
@@ -786,12 +1042,24 @@ export function getAllAssets(): AssetSpec[] {
 }
 
 /**
+ * Get all variant (dark, tinted, clear, monochrome) asset specifications.
+ */
+export function getAllVariantAssets(): AssetSpec[] {
+	return [
+		...IOS_ICONS_DARK,
+		...IOS_ICONS_TINTED,
+		...IOS_ICONS_CLEAR_LIGHT,
+		...IOS_ICONS_CLEAR_DARK,
+		...ANDROID_SPLASH_DARK,
+		...ANDROID_MONOCHROME_ICONS,
+		...WEB_FAVICONS.filter(spec => spec.colorMode !== undefined),
+	]
+}
+
+/**
+ * @deprecated Use getAllVariantAssets instead.
  * Get all dark mode asset specifications.
  */
 export function getAllDarkAssets(): AssetSpec[] {
-	return [
-		...IOS_ICONS_DARK,
-		...ANDROID_SPLASH_DARK,
-		...ANDROID_MONOCHROME_ICONS,
-	]
+	return getAllVariantAssets()
 }

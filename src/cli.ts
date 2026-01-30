@@ -119,12 +119,6 @@ const splashScaleOpt = Options.text('splash-scale').pipe(
 	Options.withDefault('0.25'),
 )
 
-// Dark mode variant options (iOS 18+, Android 13+).
-const darkModeOpt = Options.boolean('dark-mode').pipe(
-	Options.withDefault(false),
-)
-const darkBgColorOpt = Options.text('dark-bg-color').pipe(Options.optional)
-
 // Output behavior options.
 const dryRunOpt = Options.boolean('dry-run').pipe(Options.withDefault(false))
 const noZipOpt = Options.boolean('no-zip').pipe(Options.withDefault(false))
@@ -161,8 +155,6 @@ const generate = Command.make(
 		fgImage: fgImageOpt,
 		iconScale: iconScaleOpt,
 		splashScale: splashScaleOpt,
-		darkMode: darkModeOpt,
-		darkBgColor: darkBgColorOpt,
 		format: formatOpt,
 		quiet: quietOpt,
 		dryRun: dryRunOpt,
@@ -263,24 +255,6 @@ const generate = Command.make(
 				process.exit(2)
 			}
 
-			// Build dark mode background configuration (optional).
-			// Used for iOS 18+ dark icons and Android night splash screens.
-			let darkBackground: any
-			if (opts.darkMode) {
-				if (Option.isSome(opts.darkBgColor)) {
-					darkBackground = {
-						type: 'color' as const,
-						color: { type: 'solid', color: opts.darkBgColor.value },
-					}
-				} else {
-					// Default dark background if not specified
-					darkBackground = {
-						type: 'color' as const,
-						color: { type: 'solid', color: '#1A1A1A' },
-					}
-				}
-			}
-
 			// Assemble the complete asset generator configuration.
 			const config: AssetGeneratorConfig = {
 				appName: opts.name,
@@ -296,8 +270,6 @@ const generate = Command.make(
 				outputDir,
 				iconScale,
 				splashScale,
-				generateDarkMode: opts.darkMode,
-				darkBackground,
 			}
 
 			// Dry-run mode: show config without generating assets.

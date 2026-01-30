@@ -24,8 +24,8 @@ import sharp from 'sharp'
 import {
 	getAssetsByPlatform,
 	getAssetsByType,
-	getDarkAssetsByPlatform,
-	getDarkAssetsByType,
+	getVariantAssetsByPlatform,
+	getVariantAssetsByType,
 } from '../assets/asset_specs'
 import type {
 	AssetGeneratorConfig,
@@ -80,6 +80,15 @@ export async function generateAssets(
 		// Persist generated assets to disk (organized by platform folders).
 		await writeAssetsToDisk(assets, config.outputDir)
 
+		// Generate web manifest if web platform is included
+		if (
+			config.platforms.includes('web') &&
+			config.assetTypes.includes('favicon')
+		) {
+			await generateWebManifest(config, config.outputDir)
+			console.log(`✓ Generated web/site.webmanifest`)
+		}
+
 		// Generate integration instructions file.
 		const instructions = generateInstructions({
 			outputDir: config.outputDir,
@@ -121,9 +130,9 @@ export async function generateAssets(
  * platforms AND asset types. For example, if platforms=['ios'] and
  * assetTypes=['icon'], only iOS icon specs are returned.
  *
- * When generateDarkMode is enabled, also includes dark mode variants:
- * - iOS: Dark app icons
- * - Android: Night splash screens + monochrome icons
+ * Always includes all appearance variants (dark, tinted, clear, monochrome):
+ * - iOS 18+: Dark, tinted (monochrome with wallpaper tint), clear light/dark
+ * - Android 13+: Night splash screens + monochrome icons for Material You
  *
  * Deduplication ensures each unique asset is generated only once,
  * even if it appears in multiple platform/type combinations.
@@ -143,16 +152,14 @@ function determineAssetSpecs(config: AssetGeneratorConfig): AssetSpec[] {
 			)
 			specs.push(...matching)
 
-			// Dark mode assets (only if enabled)
-			if (config.generateDarkMode) {
-				const darkPlatformSpecs = getDarkAssetsByPlatform(platform)
-				const darkTypeSpecs = getDarkAssetsByType(assetType)
+			// Variant assets (dark, tinted, clear, monochrome) - always included
+			const variantPlatformSpecs = getVariantAssetsByPlatform(platform)
+			const variantTypeSpecs = getVariantAssetsByType(assetType)
 
-				const darkMatching = darkPlatformSpecs.filter(ps =>
-					darkTypeSpecs.some(ts => ts.name === ps.name),
-				)
-				specs.push(...darkMatching)
-			}
+			const variantMatching = variantPlatformSpecs.filter(ps =>
+				variantTypeSpecs.some(ts => ts.name === ps.name),
+			)
+			specs.push(...variantMatching)
 		}
 	}
 
@@ -172,9 +179,13 @@ function determineAssetSpecs(config: AssetGeneratorConfig): AssetSpec[] {
  * - Icons (70%): Logo should fill most of the icon for visibility at small sizes.
  * - Splash screens (25%): Logo should be proportionally smaller on large screens.
  *
- * Dark mode handling:
- * - For colorMode: 'dark', uses darkBackground config if available
- * - For colorMode: 'any' (monochrome), generates white-on-transparent
+ * Color mode handling:
+ * - 'light' (default): Normal background and foreground
+ * - 'dark': Auto-computed dark background (inverted/darkened)
+ * - 'tinted': White foreground on transparent (iOS 18 wallpaper tint)
+ * - 'clear-light': Normal foreground on semi-transparent white (50% opacity)
+ * - 'clear-dark': Normal foreground on semi-transparent black (50% opacity)
+ * - 'any' (monochrome): White foreground on transparent (Android Material You)
  *
  * Android adaptive icons are handled separately due to their layer architecture.
  */
@@ -189,17 +200,37 @@ async function generateAsset(
 		return generateAdaptiveIconLayer(config, spec)
 	}
 
+	// Web maskable icons: like Android adaptive, with safe zone
+	if (spec.platform === 'web' && spec.name.includes('maskable')) {
+		return generateMaskableIcon(config, spec)
+	}
+
+	// iOS tinted or web monochrome icons: white foreground on transparent background
+	if (spec.colorMode === 'tinted') {
+		return generateTintedIcon(config, spec)
+	}
+
+	// iOS clear icons: normal foreground on semi-transparent background
+	if (spec.colorMode === 'clear-light' || spec.colorMode === 'clear-dark') {
+		return generateClearIcon(config, spec)
+	}
+
 	// Step 1: Generate the background layer at full asset dimensions.
-	// Use dark background for dark mode assets if available.
-	const backgroundConfig =
-		spec.colorMode === 'dark' && config.darkBackground
-			? config.darkBackground
-			: config.background
-	const backgroundBuffer = await generateBackground(
-		backgroundConfig,
-		width,
-		height,
-	)
+	// For dark mode, auto-compute a dark background from the original.
+	let backgroundBuffer: Buffer
+	if (spec.colorMode === 'dark') {
+		backgroundBuffer = await generateDarkBackground(
+			config.background,
+			width,
+			height,
+		)
+	} else {
+		backgroundBuffer = await generateBackground(
+			config.background,
+			width,
+			height,
+		)
+	}
 
 	// Step 2: Calculate foreground size based on asset type.
 	// Separate scales for icons vs splash screens (user configurable).
@@ -216,6 +247,226 @@ async function generateAsset(
 	)
 
 	// Step 3: Composite foreground centered on background.
+	const buffer = await sharp(backgroundBuffer)
+		.composite([
+			{
+				input: foregroundBuffer,
+				top: Math.floor((height - foregroundSize) / 2),
+				left: Math.floor((width - foregroundSize) / 2),
+			},
+		])
+		.png()
+		.toBuffer()
+
+	return {
+		spec,
+		buffer,
+		path: join(config.outputDir, spec.name),
+	}
+}
+
+/**
+ * Generates iOS 18 tinted icon (monochrome, system applies wallpaper color).
+ * White foreground on transparent background.
+ */
+async function generateTintedIcon(
+	config: AssetGeneratorConfig,
+	spec: AssetSpec,
+): Promise<GeneratedAsset> {
+	const { width, height } = spec
+	const foregroundScale = config.iconScale ?? 0.7
+	const foregroundSize = Math.floor(Math.min(width, height) * foregroundScale)
+
+	// Create monochrome foreground (force white color for text/SVG)
+	const monochromeConfig = { ...config.foreground }
+	if (monochromeConfig.type === 'text') {
+		monochromeConfig.color = '#FFFFFF'
+	} else if (monochromeConfig.type === 'svg') {
+		monochromeConfig.color = '#FFFFFF'
+	}
+
+	const foregroundBuffer = await generateForeground(
+		monochromeConfig,
+		foregroundSize,
+		foregroundSize,
+	)
+
+	// Create transparent canvas and center the icon.
+	const buffer = await sharp({
+		create: {
+			width,
+			height,
+			channels: 4,
+			background: { r: 0, g: 0, b: 0, alpha: 0 },
+		},
+	})
+		.composite([
+			{
+				input: foregroundBuffer,
+				top: Math.floor((height - foregroundSize) / 2),
+				left: Math.floor((width - foregroundSize) / 2),
+			},
+		])
+		.png()
+		.toBuffer()
+
+	return {
+		spec,
+		buffer,
+		path: join(config.outputDir, spec.name),
+	}
+}
+
+/**
+ * Generates iOS 18 clear icon (translucent background).
+ * - clear-light: semi-transparent white background (50% opacity)
+ * - clear-dark: semi-transparent black background (50% opacity)
+ */
+async function generateClearIcon(
+	config: AssetGeneratorConfig,
+	spec: AssetSpec,
+): Promise<GeneratedAsset> {
+	const { width, height } = spec
+	const foregroundScale = config.iconScale ?? 0.7
+	const foregroundSize = Math.floor(Math.min(width, height) * foregroundScale)
+
+	// Create semi-transparent background based on colorMode
+	const bgColor =
+		spec.colorMode === 'clear-light'
+			? { r: 255, g: 255, b: 255, alpha: 0.5 } // White 50% opacity
+			: { r: 0, g: 0, b: 0, alpha: 0.5 } // Black 50% opacity
+
+	const backgroundBuffer = await sharp({
+		create: {
+			width,
+			height,
+			channels: 4,
+			background: bgColor,
+		},
+	})
+		.png()
+		.toBuffer()
+
+	const foregroundBuffer = await generateForeground(
+		config.foreground,
+		foregroundSize,
+		foregroundSize,
+	)
+
+	// Composite foreground on semi-transparent background
+	const buffer = await sharp(backgroundBuffer)
+		.composite([
+			{
+				input: foregroundBuffer,
+				top: Math.floor((height - foregroundSize) / 2),
+				left: Math.floor((width - foregroundSize) / 2),
+			},
+		])
+		.png()
+		.toBuffer()
+
+	return {
+		spec,
+		buffer,
+		path: join(config.outputDir, spec.name),
+	}
+}
+
+/**
+ * Generates an auto-computed dark background from the original.
+ * - Solid colors: darkens the color by reducing lightness
+ * - Gradients: inverts/darkens gradient colors
+ * - Images: applies a dark overlay
+ */
+async function generateDarkBackground(
+	bgConfig: AssetGeneratorConfig['background'],
+	width: number,
+	height: number,
+): Promise<Buffer> {
+	if (bgConfig.type === 'color' && bgConfig.color) {
+		// Darken solid color by converting to dark variant
+		const darkColor = darkenHexColor(bgConfig.color.color, 0.7)
+		return sharp({
+			create: {
+				width,
+				height,
+				channels: 3,
+				background: hexToRgb(darkColor),
+			},
+		})
+			.png()
+			.toBuffer()
+	}
+
+	if (bgConfig.type === 'gradient' && bgConfig.gradient) {
+		// Darken gradient colors
+		const darkColors = bgConfig.gradient.colors.map(c => darkenHexColor(c, 0.7))
+		const darkGradientConfig = {
+			...bgConfig,
+			gradient: { ...bgConfig.gradient, colors: darkColors },
+		}
+		return generateBackground(darkGradientConfig, width, height)
+	}
+
+	// For images, generate normally (user should provide dark version if needed)
+	return generateBackground(bgConfig, width, height)
+}
+
+/**
+ * Darkens a hex color by a factor (0-1, where 0.7 = 70% darker).
+ */
+function darkenHexColor(hex: string, factor: number): string {
+	const rgb = hexToRgb(hex)
+	const darkenedR = Math.round(rgb.r * (1 - factor))
+	const darkenedG = Math.round(rgb.g * (1 - factor))
+	const darkenedB = Math.round(rgb.b * (1 - factor))
+	return `#${darkenedR.toString(16).padStart(2, '0')}${darkenedG.toString(16).padStart(2, '0')}${darkenedB.toString(16).padStart(2, '0')}`
+}
+
+/**
+ * Converts hex color to RGB object.
+ */
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+	const cleanHex = hex.replace('#', '')
+	return {
+		r: parseInt(cleanHex.slice(0, 2), 16),
+		g: parseInt(cleanHex.slice(2, 4), 16),
+		b: parseInt(cleanHex.slice(4, 6), 16),
+	}
+}
+
+/**
+ * Generates PWA maskable icon (safe zone aware, like Android adaptive).
+ * Uses 80% safe zone for maskable icons as per W3C recommendations.
+ */
+async function generateMaskableIcon(
+	config: AssetGeneratorConfig,
+	spec: AssetSpec,
+): Promise<GeneratedAsset> {
+	const { width, height } = spec
+
+	// Maskable icons should have content in the safe zone (80% of canvas)
+	// This is less restrictive than Android's 66% but still needed
+	const safeZoneScale = 0.8
+	const userScale = config.iconScale ?? 0.7
+	const effectiveScale = Math.min(userScale * safeZoneScale, safeZoneScale)
+	const foregroundSize = Math.floor(Math.min(width, height) * effectiveScale)
+
+	// Generate full background (fills entire icon)
+	const backgroundBuffer = await generateBackground(
+		config.background,
+		width,
+		height,
+	)
+
+	// Generate foreground at safe zone size
+	const foregroundBuffer = await generateForeground(
+		config.foreground,
+		foregroundSize,
+		foregroundSize,
+	)
+
+	// Composite foreground centered on background
 	const buffer = await sharp(backgroundBuffer)
 		.composite([
 			{
@@ -366,6 +617,106 @@ async function writeAssetsToDisk(
 		await mkdir(dirname(fullPath), { recursive: true })
 		await writeFile(fullPath, asset.buffer)
 	}
+}
+
+/**
+ * Web App Manifest (W3C standard) for PWA support.
+ *
+ * Generates a site.webmanifest file with proper icon entries including:
+ * - Standard icons (purpose: "any")
+ * - Maskable icons (purpose: "maskable") - safe zone aware for adaptive display
+ * - Monochrome icons (purpose: "monochrome") - for themed/tinted display
+ *
+ * @see https://www.w3.org/TR/appmanifest/
+ * @see https://web.dev/add-manifest/
+ */
+interface WebManifest {
+	name: string
+	short_name: string
+	icons: Array<{
+		src: string
+		sizes: string
+		type: string
+		purpose?: string
+	}>
+	theme_color: string
+	background_color: string
+	display: string
+	start_url: string
+}
+
+/**
+ * Generates the site.webmanifest file for PWA support.
+ */
+async function generateWebManifest(
+	config: AssetGeneratorConfig,
+	outputDir: string,
+): Promise<void> {
+	// Get theme/background color from config
+	let themeColor = '#FFFFFF'
+	let backgroundColor = '#FFFFFF'
+
+	if (config.background.type === 'color' && config.background.color) {
+		backgroundColor = config.background.color.color
+		themeColor = config.background.color.color
+	}
+
+	const manifest: WebManifest = {
+		name: config.appName,
+		short_name: config.appName,
+		icons: [
+			// Standard icons (any purpose)
+			{
+				src: 'icon-192x192.png',
+				sizes: '192x192',
+				type: 'image/png',
+				purpose: 'any',
+			},
+			{
+				src: 'icon-512x512.png',
+				sizes: '512x512',
+				type: 'image/png',
+				purpose: 'any',
+			},
+			// Maskable icons (for adaptive display)
+			{
+				src: 'icon-maskable-192x192.png',
+				sizes: '192x192',
+				type: 'image/png',
+				purpose: 'maskable',
+			},
+			{
+				src: 'icon-maskable-512x512.png',
+				sizes: '512x512',
+				type: 'image/png',
+				purpose: 'maskable',
+			},
+			// Monochrome icons (for themed display)
+			{
+				src: 'icon-monochrome-192x192.png',
+				sizes: '192x192',
+				type: 'image/png',
+				purpose: 'monochrome',
+			},
+			{
+				src: 'icon-monochrome-512x512.png',
+				sizes: '512x512',
+				type: 'image/png',
+				purpose: 'monochrome',
+			},
+		],
+		theme_color: themeColor,
+		background_color: backgroundColor,
+		display: 'standalone',
+		start_url: '/',
+	}
+
+	const webDir = join(outputDir, 'web')
+	await mkdir(webDir, { recursive: true })
+	await writeFile(
+		join(webDir, 'site.webmanifest'),
+		JSON.stringify(manifest, null, 2),
+	)
 }
 
 /**

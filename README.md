@@ -1,8 +1,10 @@
 # appicons
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![iOS 18 Ready](https://img.shields.io/badge/iOS_18-Ready-blue.svg)](https://developer.apple.com/design/human-interface-guidelines/app-icons)
+[![Android 13+ Ready](https://img.shields.io/badge/Android_13+-Ready-green.svg)](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive)
 
-Generate all required app assets (icons, splash screens, adaptive icons, favicons) for iOS, Android, and Web platforms from a single configuration.
+Generate all required app assets (icons, splash screens, adaptive icons, favicons) for iOS, Android, and Web platforms from a single configuration. Includes full support for iOS 18 dark/tinted/clear icon appearances and Android 13+ Material You themed icons.
 
 ## Installation
 
@@ -27,6 +29,24 @@ curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/
   - iOS: App icons (20px - 1024px), Splash screens (iPhone, iPad)
   - Android: Icons, Adaptive icons (foreground + background), Splash screens
   - Web: Favicons, Apple touch icons, PWA icons
+
+- **iOS 18+ Icon Appearances**: All 5 icon variants generated automatically
+  - Default: Standard light appearance
+  - Dark: Dark mode variant
+  - Tinted: Monochrome icons with system wallpaper tint
+  - Clear Light: Translucent background for light mode
+  - Clear Dark: Translucent background for dark mode
+
+- **Android 13+ Themed Icons**: Material You support
+  - Monochrome icons for dynamic theming
+  - Proper 66dp safe zone compliance
+  - Auto-generated for all density buckets
+
+- **PWA & Web Manifest (W3C Standard)**:
+  - Standard icons (purpose: "any")
+  - Maskable icons with 80% safe zone (purpose: "maskable")
+  - Monochrome icons for themed display (purpose: "monochrome")
+  - Auto-generated `site.webmanifest` with all icon entries
 
 - **Flexible Backgrounds**:
   - Solid colors (hex)
@@ -146,29 +166,45 @@ appicons completion >> ~/.zshrc   # zsh
 
 ```
 assets/generated-YYYYMMDD-HHMMSS/
-├── ios/
-│   ├── icon-20.png
+├── ios/                               # iOS assets
+│   ├── icon-20.png                    # Default (light) icons
 │   ├── icon-20@2x.png
 │   ├── icon-60@3x.png
 │   ├── icon-1024.png
-│   ├── splash-1170x2532.png
-│   └── ...
-├── android/
+│   ├── dark/                          # iOS 18 dark mode
+│   │   ├── icon-60@2x.png
+│   │   └── icon-1024.png
+│   ├── tinted/                        # iOS 18 tinted (monochrome)
+│   │   ├── icon-60@2x.png
+│   │   └── icon-1024.png
+│   ├── clear-light/                   # iOS 18 clear (light bg)
+│   │   └── icon-*.png
+│   ├── clear-dark/                    # iOS 18 clear (dark bg)
+│   │   └── icon-*.png
+│   └── splash-*.png                   # Splash screens
+├── android/                           # Android assets
 │   ├── mipmap-mdpi/
 │   │   ├── ic_launcher.png
 │   │   ├── ic_launcher_foreground.png
-│   │   └── ic_launcher_background.png
-│   ├── mipmap-hdpi/
+│   │   ├── ic_launcher_background.png
+│   │   └── ic_launcher_monochrome.png # Android 13+ themed
+│   ├── mipmap-xxxhdpi/
 │   ├── drawable-xhdpi/
 │   │   └── splash.png
-│   └── ...
-├── web/
+│   └── drawable-night-xhdpi/          # Dark splash
+│       └── splash.png
+├── web/                               # Web/PWA assets
 │   ├── favicon-16x16.png
 │   ├── favicon-32x32.png
 │   ├── apple-touch-icon-180x180.png
-│   ├── android-chrome-512x512.png
-│   └── ...
-└── INSTRUCTIONS.md  <- Integration guide
+│   ├── icon-192x192.png               # PWA icon (any)
+│   ├── icon-512x512.png               # PWA icon (any)
+│   ├── icon-maskable-192x192.png      # PWA maskable
+│   ├── icon-maskable-512x512.png      # PWA maskable
+│   ├── icon-monochrome-192x192.png    # PWA monochrome
+│   ├── icon-monochrome-512x512.png    # PWA monochrome
+│   └── site.webmanifest               # W3C Web App Manifest
+└── INSTRUCTIONS.md                    # Integration guide
 ```
 
 ## Platform Specifications
@@ -176,8 +212,11 @@ assets/generated-YYYYMMDD-HHMMSS/
 ### iOS
 
 - **Icons**: 13 sizes from 20px to 1024px (including @2x, @3x variants)
+- **iOS 18 Appearances**: All 5 icon variants
+  - Default, Dark, Tinted, Clear Light, Clear Dark
+  - Ready for Xcode asset catalog configuration
 - **Splash Screens**: 13 sizes covering all iPhone and iPad models
-- **Format**: PNG (no transparency for app icons)
+- **Format**: PNG (no transparency for default app icons)
 
 ### Android
 
@@ -185,14 +224,19 @@ assets/generated-YYYYMMDD-HHMMSS/
 - **Adaptive Icons**: Separate foreground and background layers
   - Foreground: Transparent PNG with icon centered in safe zone
   - Background: Color or image covering full canvas
-- **Splash Screens**: 5 density buckets
+  - Monochrome: White-on-transparent for Android 13+ themed icons
+- **Splash Screens**: 5 density buckets (light and dark variants)
 - **Format**: PNG
 
 ### Web
 
 - **Favicons**: Standard sizes (16x16, 32x32, 48x48)
 - **Apple Touch Icons**: iOS home screen icons (57px - 180px)
-- **PWA Icons**: Android Chrome icons (192x192, 512x512)
+- **PWA Icons**: Full W3C manifest support
+  - Standard icons (any): 192x192, 512x512
+  - Maskable icons: Safe zone aware for adaptive display
+  - Monochrome icons: For themed/tinted display
+- **Web Manifest**: Auto-generated `site.webmanifest` with all icon purposes
 - **Format**: PNG
 
 ## Tips
@@ -219,7 +263,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 ## Related
 
 - [iOS Human Interface Guidelines - App Icons](https://developer.apple.com/design/human-interface-guidelines/app-icons)
+- [iOS 18 Icon Appearances](https://developer.apple.com/documentation/xcode/configuring-your-app-icon)
 - [Android Adaptive Icons](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive)
+- [Android 13 Themed Icons](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive#themed)
 - [Google Fonts](https://fonts.google.com/)
 
 ## License

@@ -30,8 +30,17 @@ export type ForegroundType = 'svg' | 'text' | 'image'
  * - 'light': Standard light appearance.
  * - 'dark': Dark appearance (iOS 18+ dark icons, Android night drawables).
  * - 'any': Works in both modes (Android monochrome icons for Material You).
+ * - 'tinted': iOS 18 tinted (monochrome, system applies wallpaper color).
+ * - 'clear-light': iOS 18 clear on light background (translucent).
+ * - 'clear-dark': iOS 18 clear on dark background (translucent).
  */
-export type ColorMode = 'light' | 'dark' | 'any'
+export type ColorMode =
+	| 'light'
+	| 'dark'
+	| 'any'
+	| 'tinted'
+	| 'clear-light'
+	| 'clear-dark'
 
 // ─── Background Configuration ──────────────────────────────────────────────
 
@@ -175,18 +184,6 @@ export interface AssetGeneratorConfig {
 	 * - 0.3-0.4: Prominent, bold statement.
 	 */
 	splashScale?: number
-
-	/**
-	 * Generate dark mode variants for supported platforms.
-	 *
-	 * When enabled, generates additional assets:
-	 * - iOS 18+: Dark and tinted app icons.
-	 * - Android 13+: Night splash screens + monochrome adaptive icons.
-	 */
-	generateDarkMode?: boolean
-
-	/** Dark mode background config (used when generateDarkMode is true). */
-	darkBackground?: BackgroundConfig
 }
 
 // ─── Asset Specification and Results ───────────────────────────────────────

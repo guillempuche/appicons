@@ -85,7 +85,48 @@ export function generateInstructions(context: GenerationContext): Instructions {
 		})
 	}
 
-	// Step 5: Rebuild native projects
+	// Step 5: Configure iOS 18 icon variants (dark, tinted, clear)
+	if (platforms.includes('ios') && assetTypes.includes('icon')) {
+		steps.push({
+			step: stepNum++,
+			title: 'Configure iOS 18 icon variants (Xcode)',
+			description:
+				'Copy ios/dark/, ios/tinted/, ios/clear-light/, ios/clear-dark/ folders to your Xcode asset catalog for iOS 18+ icon appearances',
+			files: [
+				`${outputDir}/ios/dark/`,
+				`${outputDir}/ios/tinted/`,
+				`${outputDir}/ios/clear-light/`,
+				`${outputDir}/ios/clear-dark/`,
+			],
+		})
+	}
+
+	// Step 6: Configure Android monochrome icons
+	if (platforms.includes('android') && assetTypes.includes('adaptive')) {
+		steps.push({
+			step: stepNum++,
+			title: 'Configure Android 13+ monochrome icons',
+			description:
+				'Add monochrome layer to your adaptive-icon XML for Material You themed icons',
+			files: [`${outputDir}/android/mipmap-*/ic_launcher_monochrome.png`],
+		})
+	}
+
+	// Step 7: Copy web manifest and PWA icons
+	if (platforms.includes('web') && assetTypes.includes('favicon')) {
+		steps.push({
+			step: stepNum++,
+			title: 'Copy web manifest and PWA icons',
+			description:
+				'Copy site.webmanifest and PWA icons (including maskable) to your web public folder',
+			files: [
+				`${outputDir}/web/site.webmanifest`,
+				`${outputDir}/web/icon-*.png`,
+			],
+		})
+	}
+
+	// Step 7: Rebuild native projects
 	steps.push({
 		step: stepNum++,
 		title: 'Rebuild native projects',
@@ -102,6 +143,29 @@ export function generateInstructions(context: GenerationContext): Instructions {
 		'For production, ensure icon has no transparency (iOS requirement)',
 		'Android adaptive icons should have content within the safe zone (66% center)',
 	]
+
+	// iOS 18 notes
+	if (platforms.includes('ios') && assetTypes.includes('icon')) {
+		notes.push(
+			'iOS 18+ supports 5 icon appearances: default, dark, tinted, clear-light, clear-dark',
+		)
+		notes.push(
+			'Tinted icons use white foreground; system applies wallpaper tint color',
+		)
+		notes.push(
+			'Clear icons have semi-transparent backgrounds for light/dark modes',
+		)
+	}
+
+	// Android 13+ notes
+	if (platforms.includes('android') && assetTypes.includes('adaptive')) {
+		notes.push(
+			'Android 13+ themed icons require a monochrome layer in adaptive-icon XML',
+		)
+		notes.push(
+			'Add <monochrome android:drawable="@mipmap/ic_launcher_monochrome"/> to ic_launcher.xml',
+		)
+	}
 
 	if (context.zipPath) {
 		notes.push(`Full asset archive available at: ${context.zipPath}`)
@@ -134,6 +198,9 @@ function generateExpoConfigExample(
 		lines.push('// Android adaptive icon (in expo.android)')
 		lines.push('adaptiveIcon: {')
 		lines.push("  foregroundImage: './assets/images/adaptive-icon.png',")
+		lines.push(
+			"  monochromeImage: './assets/images/adaptive-icon-monochrome.png', // Android 13+ themed icons",
+		)
 		lines.push("  backgroundColor: '#FFFFFF', // or your background color")
 		lines.push('},')
 		lines.push('')
@@ -155,6 +222,66 @@ function generateExpoConfigExample(
 	if (platforms.includes('web') && assetTypes.includes('favicon')) {
 		lines.push('// Web favicon (in expo.web)')
 		lines.push("favicon: './assets/images/favicon.png',")
+		lines.push('')
+	}
+
+	// iOS 18 Xcode asset catalog configuration
+	if (platforms.includes('ios') && assetTypes.includes('icon')) {
+		lines.push('')
+		lines.push(
+			'// ─── iOS 18 Icon Variants (Xcode Asset Catalog) ───────────────',
+		)
+		lines.push(
+			'// For native iOS projects, configure AppIcon.appiconset/Contents.json:',
+		)
+		lines.push('//')
+		lines.push('// Add appearances for dark, tinted, and clear variants:')
+		lines.push('// {')
+		lines.push('//   "images": [')
+		lines.push(
+			'//     { "filename": "icon-60@2x.png", "idiom": "iphone", "scale": "2x", "size": "60x60" },',
+		)
+		lines.push(
+			'//     { "appearances": [{ "appearance": "luminosity", "value": "dark" }],',
+		)
+		lines.push(
+			'//       "filename": "dark/icon-60@2x.png", "idiom": "iphone", "scale": "2x", "size": "60x60" },',
+		)
+		lines.push(
+			'//     { "appearances": [{ "appearance": "luminosity", "value": "tinted" }],',
+		)
+		lines.push(
+			'//       "filename": "tinted/icon-60@2x.png", "idiom": "iphone", "scale": "2x", "size": "60x60" }',
+		)
+		lines.push('//   ]')
+		lines.push('// }')
+		lines.push('')
+	}
+
+	// Android monochrome icon configuration
+	if (platforms.includes('android') && assetTypes.includes('adaptive')) {
+		lines.push('')
+		lines.push(
+			'// ─── Android 13+ Themed Icons (Native) ────────────────────────',
+		)
+		lines.push(
+			'// For native Android projects, update res/mipmap-anydpi-v26/ic_launcher.xml:',
+		)
+		lines.push('//')
+		lines.push(
+			'// <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">',
+		)
+		lines.push(
+			'//   <background android:drawable="@mipmap/ic_launcher_background"/>',
+		)
+		lines.push(
+			'//   <foreground android:drawable="@mipmap/ic_launcher_foreground"/>',
+		)
+		lines.push(
+			'//   <monochrome android:drawable="@mipmap/ic_launcher_monochrome"/>',
+		)
+		lines.push('// </adaptive-icon>')
+		lines.push('')
 	}
 
 	return lines.join('\n')
