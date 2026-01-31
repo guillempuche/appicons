@@ -16,3 +16,10 @@ pre-commit:
         echo "📦 Formatting package.json..."
         bun run lint:syncpack
       stage_fixed: true
+
+pre-push:
+  commands:
+    test:
+      run: |
+        echo "🧪 Running tests..."
+        bun run test

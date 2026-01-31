@@ -17,7 +17,10 @@
 		"lint:check": "biome check",
 		"lint:syncpack": "syncpack format --config syncpack.config.js",
 		"prepare": "lefthook install && effect-language-service patch",
-		"release": "bun run build && release-it"
+		"release": "bun run build && release-it",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage"
 	},
 	"dependencies": {
 		"@clack/prompts": "^0.10.0",
@@ -40,10 +43,12 @@
 		"@types/node": "^22",
 		"@types/opentype.js": "^1",
 		"@types/react": "^19",
+		"@vitest/coverage-v8": "^3.0.5",
 		"lefthook": "^2.0.13",
 		"release-it": "^19.2.3",
 		"syncpack": "^13.0.4",
-		"typescript": "^5.9.3"
+		"typescript": "^5.9.3",
+		"vitest": "^3.0.5"
 	},
 	"keywords": [
 		"app-icon",
