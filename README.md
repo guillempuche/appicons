@@ -97,6 +97,17 @@ appicons generate --fg-type image --fg-image ./logo.png \
 - **JSON Output**: Machine-readable output for programmatic usage
 - **Smart Validation**: Typo detection with suggestions for Google Font names
 
+### Comparison
+
+| Feature | appicons | app-icon | pwa-asset-generator |
+|---------|----------|----------|---------------------|
+| iOS 18 dark/tinted icons | Yes | No | No |
+| Android 13+ monochrome | Yes | No | No |
+| PWA maskable icons | Yes | No | Yes |
+| Google Fonts support | Yes | No | No |
+| Interactive TUI | Yes | No | No |
+| Single binary install | Yes | No | No |
+
 ## Usage
 
 ### Interactive Mode (Recommended)
@@ -313,17 +324,6 @@ assets/<output-folder>/
 - **PWA / Web apps**: Favicons, Apple touch icons, and maskable icons with manifest
 - **Prototypes**: Quickly generate placeholder icons with text and colors
 - **CI/CD pipelines**: Automate asset generation with `--format json` for scripting
-
-## Why appicons?
-
-| Feature | appicons | app-icon | pwa-asset-generator |
-|---------|----------|----------|---------------------|
-| iOS 18 dark/tinted icons | Yes | No | No |
-| Android 13+ monochrome | Yes | No | No |
-| PWA maskable icons | Yes | No | Yes |
-| Google Fonts support | Yes | No | No |
-| Interactive TUI | Yes | No | No |
-| Single binary install | Yes | No | No |
 
 ## Contributing
 
