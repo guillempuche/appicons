@@ -451,13 +451,48 @@ const generate = Command.make(
 				splashScale,
 			}
 
-			// Dry-run mode: show config without generating assets.
+			// Dry-run mode: show config and planned files without generating assets.
 			if (opts.dryRun) {
+				const { determineAssetSpecs } = await import(
+					'./generators/asset_generator'
+				)
+				const specs = determineAssetSpecs(config)
+
+				// Additional files generated beyond asset specs
+				const additionalFiles: string[] = []
+				if (
+					config.platforms.includes('web') &&
+					config.assetTypes.includes('favicon')
+				) {
+					additionalFiles.push('web/site.webmanifest', 'web/favicon.ico')
+				}
+				additionalFiles.push('README.md')
+
+				const plannedFiles = [
+					...specs.map((s: { name: string }) => s.name),
+					...additionalFiles,
+				]
+
 				if (opts.format === 'json') {
-					console.log(JSON.stringify({ dryRun: true, config }, null, 2))
+					console.log(
+						JSON.stringify(
+							{
+								dryRun: true,
+								config,
+								plannedFiles,
+								totalFiles: plannedFiles.length,
+							},
+							null,
+							2,
+						),
+					)
 				} else {
 					console.log('\n=== DRY RUN ===')
 					console.log('Configuration:', JSON.stringify(config, null, 2))
+					console.log(`\nPlanned files (${plannedFiles.length}):`)
+					for (const file of plannedFiles) {
+						console.log(`  - ${file}`)
+					}
 					console.log('\nNo assets will be generated in dry-run mode.')
 				}
 				return

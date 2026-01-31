@@ -152,7 +152,7 @@ export async function generateAssets(
  * Deduplication ensures each unique asset is generated only once,
  * even if it appears in multiple platform/type combinations.
  */
-function determineAssetSpecs(config: AssetGeneratorConfig): AssetSpec[] {
+export function determineAssetSpecs(config: AssetGeneratorConfig): AssetSpec[] {
 	const specs: AssetSpec[] = []
 
 	for (const platform of config.platforms) {
