@@ -4,3 +4,7 @@ dist/
 .DS_Store
 assets/generated-*/
 .claude/settings.local.json
+
+# Generated assets
+assets/*/*
+!assets/**/.gitkeep

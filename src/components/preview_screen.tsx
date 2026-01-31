@@ -10,7 +10,7 @@
  */
 
 import { useKeyboard } from '@opentui/react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { generateAssets } from '../generators/asset_generator'
 import type {
@@ -62,15 +62,6 @@ export function PreviewScreen({
 		}
 	})
 
-	// ─── Effects ───────────────────────────────────────────────────────────────
-
-	// Trigger asset generation on mount if not already generated.
-	useEffect(() => {
-		if (!result && !isGenerating) {
-			generateAssetsAsync()
-		}
-	}, [])
-
 	// ─── Asset Generation ──────────────────────────────────────────────────────
 
 	/**
@@ -79,7 +70,7 @@ export function PreviewScreen({
 	 * Updates progress state and calls onGenerationComplete when done.
 	 * Errors are logged but don't prevent partial results from displaying.
 	 */
-	const generateAssetsAsync = async () => {
+	const generateAssetsAsync = useCallback(async () => {
 		setIsGenerating(true)
 		setProgress(0)
 
@@ -92,7 +83,16 @@ export function PreviewScreen({
 		} finally {
 			setIsGenerating(false)
 		}
-	}
+	}, [config, onGenerationComplete])
+
+	// ─── Effects ───────────────────────────────────────────────────────────────
+
+	// Trigger asset generation on mount if not already generated.
+	useEffect(() => {
+		if (!result && !isGenerating) {
+			generateAssetsAsync()
+		}
+	}, [generateAssetsAsync, isGenerating, result])
 
 	// ─── Computed Values ───────────────────────────────────────────────────────
 
@@ -202,7 +202,7 @@ export function PreviewScreen({
 							</text>
 						)}
 						<text fg={colors.textDim}>
-							Copy assets to your project. See INSTRUCTIONS.md for details.
+							Copy assets to your project. See README.md for details.
 						</text>
 					</box>
 				</box>

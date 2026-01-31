@@ -5,13 +5,20 @@
  * into an Expo project.
  */
 
-import type { AssetType, Platform } from '../types'
+import type {
+	AssetGeneratorConfig,
+	AssetType,
+	BackgroundConfig,
+	ForegroundConfig,
+	Platform,
+} from '../types'
 
 export interface GenerationContext {
 	outputDir: string
 	platforms: Platform[]
 	assetTypes: AssetType[]
 	zipPath?: string | undefined
+	config?: AssetGeneratorConfig
 }
 
 export interface InstructionStep {
@@ -24,6 +31,7 @@ export interface InstructionStep {
 
 export interface Instructions {
 	summary: string
+	generationConfig?: string | undefined
 	steps: InstructionStep[]
 	expoConfigChanges?: string
 	notes: string[]
@@ -171,12 +179,97 @@ export function generateInstructions(context: GenerationContext): Instructions {
 		notes.push(`Full asset archive available at: ${context.zipPath}`)
 	}
 
+	// Generate config summary if available
+	const generationConfig = context.config
+		? formatGenerationConfig(context.config)
+		: undefined
+
 	return {
 		summary: `Generated assets for ${platforms.join(', ')} (${assetTypes.join(', ')})`,
+		generationConfig,
 		steps,
 		expoConfigChanges,
 		notes,
 	}
+}
+
+/**
+ * Format background configuration for display.
+ */
+function formatBackgroundConfig(bg: BackgroundConfig): string[] {
+	const lines: string[] = []
+
+	if (bg.type === 'color' && bg.color) {
+		lines.push(`Type:  Solid color`)
+		lines.push(`Color: ${bg.color.color}`)
+	} else if (bg.type === 'gradient' && bg.gradient) {
+		lines.push(`Type:   ${bg.gradient.type} gradient`)
+		lines.push(`Colors: ${bg.gradient.colors.join(' → ')}`)
+		if (bg.gradient.angle !== undefined) {
+			lines.push(`Angle:  ${bg.gradient.angle}°`)
+		}
+	} else if (bg.type === 'image' && bg.imagePath) {
+		lines.push(`Type:  Image`)
+		lines.push(`Path:  ${bg.imagePath}`)
+	}
+
+	return lines
+}
+
+/**
+ * Format foreground configuration for display.
+ */
+function formatForegroundConfig(fg: ForegroundConfig): string[] {
+	const lines: string[] = []
+
+	if (fg.type === 'text') {
+		lines.push(`Type:        Text`)
+		lines.push(`Text:        "${fg.text}"`)
+		lines.push(`Font:        ${fg.fontFamily}`)
+		lines.push(`Font source: ${fg.fontSource}`)
+		lines.push(`Color:       ${fg.color}`)
+		if (fg.fontSize) {
+			lines.push(`Font size:   ${fg.fontSize}px`)
+		}
+	} else if (fg.type === 'svg') {
+		lines.push(`Type: SVG`)
+		lines.push(`Path: ${fg.svgPath}`)
+		if (fg.color) {
+			lines.push(`Color override: ${fg.color}`)
+		}
+	} else if (fg.type === 'image') {
+		lines.push(`Type: Image`)
+		lines.push(`Path: ${fg.imagePath}`)
+	}
+
+	return lines
+}
+
+/**
+ * Format the complete generation configuration for display.
+ */
+function formatGenerationConfig(config: AssetGeneratorConfig): string {
+	const lines: string[] = []
+
+	lines.push(`App name:    ${config.appName}`)
+	lines.push(`Platforms:   ${config.platforms.join(', ')}`)
+	lines.push(`Asset types: ${config.assetTypes.join(', ')}`)
+	lines.push(`Icon scale:  ${((config.iconScale ?? 0.7) * 100).toFixed(0)}%`)
+	lines.push(
+		`Splash scale: ${((config.splashScale ?? 0.25) * 100).toFixed(0)}%`,
+	)
+	lines.push('')
+	lines.push('Background:')
+	for (const line of formatBackgroundConfig(config.background)) {
+		lines.push(`  ${line}`)
+	}
+	lines.push('')
+	lines.push('Foreground:')
+	for (const line of formatForegroundConfig(config.foreground)) {
+		lines.push(`  ${line}`)
+	}
+
+	return lines.join('\n')
 }
 
 /**
@@ -295,10 +388,28 @@ export function formatInstructionsText(instructions: Instructions): string {
 
 	lines.push('')
 	lines.push('═══════════════════════════════════════════════════════════════')
-	lines.push('  NEXT STEPS')
+	lines.push('  GENERATION INFO')
 	lines.push('═══════════════════════════════════════════════════════════════')
 	lines.push('')
 	lines.push(instructions.summary)
+	lines.push('')
+
+	if (instructions.generationConfig) {
+		lines.push(
+			'───────────────────────────────────────────────────────────────',
+		)
+		lines.push('  CONFIGURATION')
+		lines.push(
+			'───────────────────────────────────────────────────────────────',
+		)
+		lines.push('')
+		lines.push(instructions.generationConfig)
+		lines.push('')
+	}
+
+	lines.push('───────────────────────────────────────────────────────────────')
+	lines.push('  INTEGRATION STEPS')
+	lines.push('───────────────────────────────────────────────────────────────')
 	lines.push('')
 
 	for (const step of instructions.steps) {

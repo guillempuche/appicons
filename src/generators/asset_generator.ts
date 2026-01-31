@@ -9,7 +9,7 @@
  * 1. Determine asset specs based on target platforms and asset types.
  * 2. For each spec, generate background and foreground layers.
  * 3. Composite layers with appropriate sizing/positioning.
- * 4. Write files to platform-organized folders + INSTRUCTIONS.md.
+ * 4. Write files to platform-organized folders + README.md.
  *
  * Platform support:
  * - iOS: App icons (@1x, @2x, @3x), launch images, dark icons (iOS 18+).
@@ -47,7 +47,7 @@ import { generateForeground } from './foreground_generator'
  * - Asset specification resolution from platforms/types (including dark mode).
  * - Individual asset generation with error isolation.
  * - File output organized by platform folders.
- * - Integration instructions file (INSTRUCTIONS.md).
+ * - Integration instructions file (README.md).
  *
  * Errors are collected rather than thrown, allowing partial success
  * when some assets fail (e.g., due to invalid source images).
@@ -94,10 +94,11 @@ export async function generateAssets(
 			outputDir: config.outputDir,
 			platforms: config.platforms,
 			assetTypes: config.assetTypes,
+			config,
 		})
-		const instructionsPath = join(config.outputDir, 'INSTRUCTIONS.md')
+		const instructionsPath = join(config.outputDir, 'README.md')
 		await writeFile(instructionsPath, formatInstructionsText(instructions))
-		console.log(`✓ Generated INSTRUCTIONS.md`)
+		console.log(`✓ Generated README.md`)
 
 		// Report generation summary.
 		console.log(`\n✓ Generated ${assets.length} assets`)
@@ -236,8 +237,8 @@ async function generateAsset(
 	// Separate scales for icons vs splash screens (user configurable).
 	const foregroundScale =
 		spec.type === 'splash'
-			? (config.splashScale ?? 0.25) // Splash: 25% default, range 0.1-0.5
-			: (config.iconScale ?? 0.7) // Icons: 70% default, range 0.2-1.0
+			? (config.splashScale ?? 0.25) // Splash: 25% default, range 0.05-1.0
+			: (config.iconScale ?? 0.7) // Icons: 70% default, range 0.1-1.5
 	const foregroundSize = Math.floor(Math.min(width, height) * foregroundScale)
 
 	const foregroundBuffer = await generateForeground(

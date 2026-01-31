@@ -160,7 +160,7 @@ export interface AssetGeneratorConfig {
 	outputDir: string
 
 	/**
-	 * Foreground scale for app icons (0.2 to 1.0).
+	 * Foreground scale for app icons (0.1 to 1.5).
 	 *
 	 * Controls how much of the icon canvas the logo fills.
 	 * Default: 0.7 (70% of icon size).
@@ -169,11 +169,12 @@ export interface AssetGeneratorConfig {
 	 * - 0.6-0.7: Standard, good for text/logos with padding.
 	 * - 0.8-0.9: Bold, fills most of the icon.
 	 * - 0.5-0.6: Conservative, more background visible.
+	 * - 1.0-1.5: Edge-to-edge, logo may extend beyond canvas.
 	 */
 	iconScale?: number
 
 	/**
-	 * Foreground scale for splash screens (0.1 to 0.5).
+	 * Foreground scale for splash screens (0.05 to 1.0).
 	 *
 	 * Controls how much of the screen height the logo fills.
 	 * Default: 0.25 (25% of screen height).
@@ -181,7 +182,8 @@ export interface AssetGeneratorConfig {
 	 * Best practices:
 	 * - 0.2-0.3: Standard, centered branding.
 	 * - 0.15-0.2: Minimal, subtle presence.
-	 * - 0.3-0.4: Prominent, bold statement.
+	 * - 0.3-0.5: Prominent, bold statement.
+	 * - 0.5-1.0: Large, fills most of screen.
 	 */
 	splashScale?: number
 }
@@ -247,7 +249,7 @@ export interface GenerationResult {
 	/** Root output directory. */
 	outputDir: string
 
-	/** Path to the generated INSTRUCTIONS.md file. */
+	/** Path to the generated README.md file. */
 	instructionsPath?: string
 
 	/** Array of error messages for failed assets. */
