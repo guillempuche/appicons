@@ -501,5 +501,108 @@ describe('ForegroundGenerator', () => {
 			expect(svgContent).toContain('width="256"')
 			expect(svgContent).toContain('height="256"')
 		})
+
+		it('should handle multi-character text', async () => {
+			// GIVEN a text config with multiple characters
+			const opentype = (await import('opentype.js')).default
+
+			const { generateForeground } = await import(
+				'../../generators/foreground_generator'
+			)
+			const config: ForegroundConfig = {
+				type: 'text',
+				text: 'ABC',
+				fontFamily: 'Roboto',
+				fontSource: 'google',
+				color: '#FFFFFF',
+			}
+
+			// WHEN generating the foreground
+			const buffer = await generateForeground(config, 200, 200)
+
+			// THEN buffer should be generated successfully
+			expect(buffer).toBeInstanceOf(Buffer)
+			// AND opentype should render all characters
+			const mockFont = opentype.parse(new ArrayBuffer(0))
+			expect(mockFont.getPath).toHaveBeenCalledWith(
+				'ABC',
+				0,
+				0,
+				expect.any(Number),
+			)
+		})
+
+		it('should handle unicode characters (CJK)', async () => {
+			// GIVEN a text config with Japanese characters
+			const opentype = (await import('opentype.js')).default
+
+			const { generateForeground } = await import(
+				'../../generators/foreground_generator'
+			)
+			const config: ForegroundConfig = {
+				type: 'text',
+				text: '日本',
+				fontFamily: 'Noto Sans JP',
+				fontSource: 'google',
+				color: '#FFFFFF',
+			}
+
+			// WHEN generating the foreground
+			const buffer = await generateForeground(config, 200, 200)
+
+			// THEN buffer should be generated successfully
+			expect(buffer).toBeInstanceOf(Buffer)
+			// AND opentype should render unicode text
+			const mockFont = opentype.parse(new ArrayBuffer(0))
+			expect(mockFont.getPath).toHaveBeenCalledWith(
+				'日本',
+				0,
+				0,
+				expect.any(Number),
+			)
+		})
+
+		it('should handle emoji characters', async () => {
+			// GIVEN a text config with emoji
+			const sharp = (await import('sharp')).default as any
+
+			const { generateForeground } = await import(
+				'../../generators/foreground_generator'
+			)
+			const config: ForegroundConfig = {
+				type: 'text',
+				text: '🚀',
+				fontFamily: 'Noto Color Emoji',
+				fontSource: 'google',
+				color: '#FFFFFF',
+			}
+
+			// WHEN generating the foreground
+			const buffer = await generateForeground(config, 200, 200)
+
+			// THEN buffer should be generated successfully
+			expect(buffer).toBeInstanceOf(Buffer)
+		})
+
+		it('should handle special characters', async () => {
+			// GIVEN a text config with special characters
+			const { generateForeground } = await import(
+				'../../generators/foreground_generator'
+			)
+			const config: ForegroundConfig = {
+				type: 'text',
+				text: '"\'&<>',
+				fontFamily: 'Roboto',
+				fontSource: 'google',
+				color: '#FFFFFF',
+			}
+
+			// WHEN generating the foreground
+			const buffer = await generateForeground(config, 200, 200)
+
+			// THEN buffer should be generated successfully
+			// AND special chars should be handled without errors
+			expect(buffer).toBeInstanceOf(Buffer)
+		})
 	})
 })
