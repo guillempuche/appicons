@@ -146,6 +146,7 @@ const fgFontOpt = Options.text('fg-font').pipe(
 const fgFontSourceOpt = Options.text('fg-font-source').pipe(
 	Options.withDefault('google'),
 )
+const fgFontPathOpt = Options.text('fg-font-path').pipe(Options.optional)
 const fgFontSizeOpt = Options.integer('fg-font-size').pipe(Options.optional)
 const fgSvgOpt = Options.text('fg-svg').pipe(Options.optional)
 const fgSvgColorOpt = Options.text('fg-svg-color').pipe(Options.optional)
@@ -200,6 +201,7 @@ const generate = Command.make(
 		fgColor: fgColorOpt,
 		fgFont: fgFontOpt,
 		fgFontSource: fgFontSourceOpt,
+		fgFontPath: fgFontPathOpt,
 		fgFontSize: fgFontSizeOpt,
 		fgSvg: fgSvgOpt,
 		fgSvgColor: fgSvgColorOpt,
@@ -364,6 +366,9 @@ const generate = Command.make(
 				foreground.fontFamily = opts.fgFont
 				foreground.color = opts.fgColor
 				foreground.fontSource = opts.fgFontSource
+				if (Option.isSome(opts.fgFontPath)) {
+					foreground.fontPath = opts.fgFontPath.value
+				}
 				if (Option.isSome(opts.fgFontSize)) {
 					foreground.fontSize = opts.fgFontSize.value
 				}
