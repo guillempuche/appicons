@@ -330,10 +330,10 @@ describe('VersionCheck', () => {
 		})
 
 		it('should handle calver format correctly', async () => {
-			// GIVEN no cache and a slightly newer patch version
+			// GIVEN no cache and a newer month version
 			mockFs.existsSync.mockReturnValue(false)
 
-			const mockResponse = createMockGitHubReleaseResponse('2026.1.9')
+			const mockResponse = createMockGitHubReleaseResponse('2026.12.0')
 			const mockFetch = vi.fn().mockResolvedValue({
 				ok: true,
 				status: 200,
