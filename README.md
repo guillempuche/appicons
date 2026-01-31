@@ -155,6 +155,16 @@ Three example outputs are included in [`assets/`](assets/) showcasing different 
 appicons generate --fg-text "N" --fg-color "#FFFFFF" --bg-color "#FF6B6B"
 ```
 
+### Unicode Characters
+
+```bash
+# Japanese text with Noto Sans JP font
+appicons generate --fg-text "日" --fg-font "Noto Sans JP" --bg-color "#E6D9C2"
+
+# Curly quote (U+201C) with custom local font
+appicons generate --fg-text """ --fg-font-source custom --fg-font-path ./MyFont.ttf
+```
+
 ### SVG Icon + Gradient
 
 ```bash
@@ -202,12 +212,14 @@ appicons generate --fg-type image --fg-image ./logo.png \
 
 - **Flexible Foregrounds**:
   - Text/Characters with Google Fonts (any font from fonts.google.com)
+  - Unicode support: CJK characters, symbols, quotation marks (e.g., U+201C `"`)
+  - Custom local fonts via `--fg-font-path`
   - System fonts (Arial, Times New Roman, etc.)
   - SVG icons with color override
   - PNG/JPG images
 
 - **Interactive TUI**: OpenTUI-based terminal interface with image preview and font autocomplete
-- **CLI Mode**: Command-line interface for automation and AI agents with shell completion
+- **CLI Mode**: Command-line interface for automation and AI agents with shell completion and dry-run preview
 - **JSON Output**: Machine-readable output for programmatic usage
 - **Smart Validation**: Typo detection with suggestions for Google Font names
 - **Settings History**: Auto-saves generation configs for easy reuse (up to 50 entries)
@@ -223,7 +235,36 @@ appicons generate --fg-type image --fg-image ./logo.png \
 | Interactive TUI | Yes | No | No |
 | Single binary install | Yes | No | No |
 
-## Usage
+## Getting Started
+
+```bash
+# Install
+curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/install.sh | bash
+
+# Generate icons with letter "A" on indigo background
+appicons generate --fg-text "A" --fg-color "#FFFFFF" --bg-color "#6366F1"
+
+# Or launch interactive mode
+appicons
+```
+
+## Installation
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/install.sh | bash
+```
+
+This installs:
+
+- Bun runtime (if not already installed)
+- appicons binary to `~/.appicons`
+- Symlink to `/usr/local/bin/appicons`
+
+### Uninstall
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/uninstall.sh | bash
+```
 
 ### Interactive Mode (Recommended)
 
@@ -257,6 +298,35 @@ Commands:
 ```
 
 #### Generate Command
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--name` | `MyApp` | App name for manifest |
+| `--platforms` | `ios,android,web` | Target platforms (comma-separated) |
+| `--types` | `icon,splash,adaptive,favicon` | Asset types to generate |
+| `--bg-type` | `color` | Background type: `color`, `gradient`, `image` |
+| `--bg-color` | `#FFFFFF` | Background color (hex) |
+| `--bg-gradient-type` | `linear` | Gradient type: `linear`, `radial` |
+| `--bg-gradient-colors` | — | Gradient colors (comma-separated hex) |
+| `--bg-gradient-angle` | `180` | Gradient angle in degrees |
+| `--bg-image` | — | Path to background image |
+| `--fg-type` | `text` | Foreground type: `text`, `svg`, `image` |
+| `--fg-text` | `"` | Text character(s) - supports unicode |
+| `--fg-color` | `#1A1A1A` | Text/SVG color (hex) |
+| `--fg-font` | `Playfair Display` | Font family name |
+| `--fg-font-source` | `google` | Font source: `google`, `system`, `custom` |
+| `--fg-font-path` | — | Path to custom font file (when source is `custom`) |
+| `--fg-font-size` | auto | Font size in pixels (auto-calculated if omitted) |
+| `--fg-svg` | — | Path to SVG file |
+| `--fg-svg-color` | — | Override SVG fill color |
+| `--fg-image` | — | Path to foreground image |
+| `--icon-scale` | `0.7` | Icon foreground scale (0.1-1.5) |
+| `--splash-scale` | `0.25` | Splash foreground scale (0.05-1.0) |
+| `-o, --output` | auto | Output directory path |
+| `--format` | `text` | Output format: `text`, `json` |
+| `--dry-run` | `false` | Show planned files without generating |
+| `--quiet` | `false` | Suppress output messages |
+| `--from-history` | — | Load config from history entry ID |
 
 ```bash
 # Simple generation with defaults
@@ -293,11 +363,13 @@ appicons generate \
   --fg-svg ./logo.svg \
   --fg-svg-color "#000000"
 
-# Dry-run (validate without generating)
+# Dry-run (shows config and planned files without generating)
 appicons generate --dry-run
+# Output: config + list of all files that would be generated
 
-# JSON output for AI agents
+# JSON output for AI agents (works with --dry-run too)
 appicons generate --format json
+appicons generate --dry-run --format json
 
 # Generate from a saved history entry
 appicons generate --from-history <entry-id>
@@ -345,37 +417,6 @@ appicons instructions --platforms ios,android
 # Generate shell completion script
 appicons completion >> ~/.bashrc  # bash
 appicons completion >> ~/.zshrc   # zsh
-```
-
-## Quick Start
-
-```bash
-# Install
-curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/install.sh | bash
-
-# Generate icons with letter "A" on indigo background
-appicons generate --fg-text "A" --fg-color "#FFFFFF" --bg-color "#6366F1"
-
-# Or launch interactive mode
-appicons
-```
-
-## Installation
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/install.sh | bash
-```
-
-This installs:
-
-- Bun runtime (if not already installed)
-- appicons binary to `~/.appicons`
-- Symlink to `/usr/local/bin/appicons`
-
-### Uninstall
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/uninstall.sh | bash
 ```
 
 ## Output Structure
