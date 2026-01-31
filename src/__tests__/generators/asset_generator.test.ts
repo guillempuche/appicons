@@ -567,6 +567,115 @@ describe('AssetGenerator', () => {
 		})
 	})
 
+	describe('favicon scale', () => {
+		it('should use default favicon scale of 0.85', async () => {
+			// GIVEN config with web platform and favicon type, no custom scale
+			const { generateForeground } = await import(
+				'../../generators/foreground_generator'
+			)
+			mockConfig.platforms = ['web']
+			mockConfig.assetTypes = ['favicon']
+			// Ensure faviconScale is undefined to test default
+			delete (mockConfig as any).faviconScale
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN foreground should be generated at 85% of icon size
+			// For 32px favicon, foreground should be 32 * 0.85 = 27px
+			const calls = (generateForeground as any).mock.calls
+			const favicon32Call = calls.find(
+				(call: any[]) => call[1] === Math.floor(32 * 0.85),
+			)
+			expect(favicon32Call).toBeDefined()
+		})
+
+		it('should use custom favicon scale when provided', async () => {
+			// GIVEN config with custom favicon scale of 0.6
+			const { generateForeground } = await import(
+				'../../generators/foreground_generator'
+			)
+			mockConfig.platforms = ['web']
+			mockConfig.assetTypes = ['favicon']
+			mockConfig.faviconScale = 0.6
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN foreground should be generated at 60% of icon size
+			// For 32px favicon, foreground should be 32 * 0.6 = 19px
+			const calls = (generateForeground as any).mock.calls
+			const favicon32Call = calls.find(
+				(call: any[]) => call[1] === Math.floor(32 * 0.6),
+			)
+			expect(favicon32Call).toBeDefined()
+		})
+
+		it('should use favicon scale for favicon.ico generation', async () => {
+			// GIVEN config with web platform, favicon type, and custom scale
+			const { generateForeground } = await import(
+				'../../generators/foreground_generator'
+			)
+			mockConfig.platforms = ['web']
+			mockConfig.assetTypes = ['favicon']
+			mockConfig.faviconScale = 0.7
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN favicon.ico sizes (16, 32, 48) should use favicon scale
+			// 16 * 0.7 = 11, 32 * 0.7 = 22, 48 * 0.7 = 33
+			const calls = (generateForeground as any).mock.calls
+			const sizes = calls.map((call: any[]) => call[1])
+			expect(sizes).toContain(Math.floor(16 * 0.7))
+			expect(sizes).toContain(Math.floor(32 * 0.7))
+			expect(sizes).toContain(Math.floor(48 * 0.7))
+		})
+
+		it('should not affect icon scale when favicon scale is set', async () => {
+			// GIVEN config with both icon and favicon types and different scales
+			const { generateForeground } = await import(
+				'../../generators/foreground_generator'
+			)
+			mockConfig.platforms = ['ios', 'web']
+			mockConfig.assetTypes = ['icon', 'favicon']
+			mockConfig.iconScale = 0.7
+			mockConfig.faviconScale = 0.9
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN both scales should be used independently
+			const calls = (generateForeground as any).mock.calls
+			// iOS icon at 1024px should use iconScale: 1024 * 0.7 = 716
+			const iconCall = calls.find(
+				(call: any[]) => call[1] === Math.floor(1024 * 0.7),
+			)
+			expect(iconCall).toBeDefined()
+			// Favicon at 32px should use faviconScale: 32 * 0.9 = 28
+			const faviconCall = calls.find(
+				(call: any[]) => call[1] === Math.floor(32 * 0.9),
+			)
+			expect(faviconCall).toBeDefined()
+		})
+	})
+
 	describe('error handling', () => {
 		it('should handle pipeline setup errors', async () => {
 			// GIVEN a mocked module that throws

@@ -186,6 +186,23 @@ export interface AssetGeneratorConfig {
 	 * - 0.5-1.0: Large, fills most of screen.
 	 */
 	splashScale?: number
+
+	/**
+	 * Foreground scale for web favicons (0.5 to 1.0).
+	 *
+	 * Controls how much of the favicon canvas the logo fills.
+	 * Default: 0.85 (85% of icon size) for visibility at small sizes.
+	 *
+	 * Best practices:
+	 * - 0.85-0.95: Recommended, maximizes visibility at 16px/32px.
+	 * - 0.7-0.85: Standard, matches icon scale with more padding.
+	 * - 0.5-0.7: Conservative, more background visible.
+	 *
+	 * Note: Favicons are typically very small (16-48px), so higher
+	 * scales improve legibility. This scale applies to all favicon
+	 * sizes including favicon.ico and PNG favicons.
+	 */
+	faviconScale?: number
 }
 
 // ─── Asset Specification and Results ───────────────────────────────────────

@@ -51,6 +51,7 @@ Main configuration object for asset generation:
 | `outputDir` | `string` | Output directory path |
 | `iconScale` | `number?` | Icon foreground scale (0.1-1.5, default 0.7) |
 | `splashScale` | `number?` | Splash foreground scale (0.05-1.0, default 0.25) |
+| `faviconScale` | `number?` | Favicon foreground scale (0.5-1.0, default 0.85) |
 | `generateDarkMode` | `boolean?` | Generate dark mode variants |
 | `darkBackground` | `BackgroundConfig?` | Dark mode background |
 
@@ -87,6 +88,7 @@ Main configuration object for asset generation:
 | `bun run tui` | Launch interactive TUI |
 | `bun run typecheck` | Run TypeScript type checking |
 | `bun run lint` | Run Biome linting |
+| `bun run test` | Run tests with vitest |
 
 ## Output Structure
 

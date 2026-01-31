@@ -322,6 +322,7 @@ Commands:
 | `--fg-image` | — | Path to foreground image |
 | `--icon-scale` | `0.7` | Icon foreground scale (0.1-1.5) |
 | `--splash-scale` | `0.25` | Splash foreground scale (0.05-1.0) |
+| `--favicon-scale` | `0.85` | Favicon foreground scale (0.5-1.0) |
 | `-o, --output` | auto | Output directory path |
 | `--format` | `text` | Output format: `text`, `json` |
 | `--dry-run` | `false` | Show planned files without generating |

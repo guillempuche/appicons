@@ -91,6 +91,17 @@ function getSplashScaleWarning(scale: number): string | null {
 }
 
 /**
+ * Get warning for favicon scale based on visibility concerns.
+ * Favicons are typically very small (16-48px), so higher scales improve legibility.
+ */
+function getFaviconScaleWarning(scale: number): string | null {
+	if (scale < 0.7) {
+		return 'Warning: Favicon scale <70% may be hard to see at 16px/32px sizes'
+	}
+	return null
+}
+
+/**
  * Generate datetime-based output directory.
  * Format: ./assets/generated_YYYY-MM-DD_HH-MM-SS
  */
@@ -157,6 +168,9 @@ const iconScaleOpt = Options.text('icon-scale').pipe(Options.withDefault('0.7'))
 const splashScaleOpt = Options.text('splash-scale').pipe(
 	Options.withDefault('0.25'),
 )
+const faviconScaleOpt = Options.text('favicon-scale').pipe(
+	Options.withDefault('0.85'),
+)
 
 // Output behavior options.
 const outputOpt = Options.text('output').pipe(
@@ -208,6 +222,7 @@ const generate = Command.make(
 		fgImage: fgImageOpt,
 		iconScale: iconScaleOpt,
 		splashScale: splashScaleOpt,
+		faviconScale: faviconScaleOpt,
 		output: outputOpt,
 		format: formatOpt,
 		quiet: quietOpt,
@@ -418,6 +433,7 @@ const generate = Command.make(
 			// Scales control how much of the canvas the foreground fills.
 			const iconScale = parseFloat(opts.iconScale)
 			const splashScale = parseFloat(opts.splashScale)
+			const faviconScale = parseFloat(opts.faviconScale)
 
 			if (iconScale < 0.1 || iconScale > 1.5) {
 				console.error('Error: --icon-scale must be between 0.1 and 1.5')
@@ -427,12 +443,18 @@ const generate = Command.make(
 				console.error('Error: --splash-scale must be between 0.05 and 1.0')
 				process.exit(2)
 			}
+			if (faviconScale < 0.5 || faviconScale > 1.0) {
+				console.error('Error: --favicon-scale must be between 0.5 and 1.0')
+				process.exit(2)
+			}
 
 			// Show scale warnings based on platform guidelines
 			const iconWarning = getIconScaleWarning(iconScale)
 			const splashWarning = getSplashScaleWarning(splashScale)
+			const faviconWarning = getFaviconScaleWarning(faviconScale)
 			if (iconWarning) console.warn(`\x1b[33m${iconWarning}\x1b[0m`)
 			if (splashWarning) console.warn(`\x1b[33m${splashWarning}\x1b[0m`)
+			if (faviconWarning) console.warn(`\x1b[33m${faviconWarning}\x1b[0m`)
 
 			// Assemble the complete asset generator configuration.
 			const config: AssetGeneratorConfig = {
@@ -449,6 +471,7 @@ const generate = Command.make(
 				outputDir,
 				iconScale,
 				splashScale,
+				faviconScale,
 			}
 
 			// Dry-run mode: show config and planned files without generating assets.
@@ -1025,6 +1048,9 @@ const historyShowCmd = Command.make(
 			}
 			if (entry.config.splashScale) {
 				console.log(`  Splash Scale: ${entry.config.splashScale}`)
+			}
+			if (entry.config.faviconScale) {
+				console.log(`  Favicon Scale: ${entry.config.faviconScale}`)
 			}
 			console.log()
 			console.log(`Use "appicons generate --from-history ${entry.id}" to reuse`)

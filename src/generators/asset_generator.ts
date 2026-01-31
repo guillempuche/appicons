@@ -248,17 +248,12 @@ async function generateAsset(
 	}
 
 	// Step 2: Calculate foreground size based on asset type.
-	// Separate scales for icons vs splash screens (user configurable).
-	// For small favicons (< 64px), use larger scale for visibility.
-	const SMALL_FAVICON_THRESHOLD = 64
-	const SMALL_FAVICON_SCALE = 0.85
-
+	// Separate scales for icons, splash screens, and favicons (user configurable).
 	const foregroundScale =
 		spec.type === 'splash'
 			? (config.splashScale ?? 0.25) // Splash: 25% default, range 0.05-1.0
-			: spec.type === 'favicon' &&
-					Math.min(width, height) < SMALL_FAVICON_THRESHOLD
-				? Math.max(config.iconScale ?? 0.7, SMALL_FAVICON_SCALE) // Small favicons: 85% for visibility
+			: spec.type === 'favicon'
+				? (config.faviconScale ?? 0.85) // Favicons: 85% default, range 0.5-1.0
 				: (config.iconScale ?? 0.7) // Icons: 70% default, range 0.1-1.5
 	const foregroundSize = Math.floor(Math.min(width, height) * foregroundScale)
 
@@ -756,17 +751,9 @@ async function generateFaviconIco(
 	const sizes = [16, 32, 48]
 	const pngBuffers: Buffer[] = []
 
-	// Constants for small favicon scaling
-	const SMALL_FAVICON_THRESHOLD = 64
-	const SMALL_FAVICON_SCALE = 0.85
-
 	for (const size of sizes) {
-		// Use higher scale for small sizes to improve visibility
-		const scale =
-			size < SMALL_FAVICON_THRESHOLD
-				? Math.max(config.iconScale ?? 0.7, SMALL_FAVICON_SCALE)
-				: (config.iconScale ?? 0.7)
-
+		// Use faviconScale for all favicon.ico sizes (default 85%)
+		const scale = config.faviconScale ?? 0.85
 		const foregroundSize = Math.floor(size * scale)
 
 		// Generate background at target size
