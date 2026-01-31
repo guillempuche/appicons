@@ -46,6 +46,7 @@ const DEFAULT_FORM_STATE: ConfigFormState = {
 	fgColor: '#000000',
 	iconScale: 0.7,
 	splashScale: 0.25,
+	outputPath: '',
 }
 
 // ─── Main Component ────────────────────────────────────────────────────────

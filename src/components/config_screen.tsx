@@ -33,6 +33,7 @@ import {
 	normalizeFontFamily,
 	searchFonts,
 } from '../utils/google_fonts'
+import { resolvePath } from '../utils/path_utils'
 import { LivePreview } from './live_preview'
 
 // ─── Utility Functions ─────────────────────────────────────────────────────
@@ -80,6 +81,7 @@ const colors = {
 	textDim: 'gray',
 	accent: 'cyan',
 	tip: 'green',
+	warning: 'yellow',
 } as const
 
 // ─── Field Definitions ─────────────────────────────────────────────────────
@@ -158,21 +160,59 @@ const FIELDS: FieldDef[] = [
 		id: 'iconScale',
 		label: 'Icon Scale',
 		type: 'scale',
-		min: 0.2,
-		max: 1.0,
+		min: 0.1,
+		max: 1.5,
 		step: 0.05,
-		tip: '0.6-0.7 standard • 0.8-0.9 bold • 0.5-0.6 minimal',
+		tip: '0.6-0.7 standard • 0.8-0.9 bold • 1.0+ edge-to-edge',
 	},
 	{
 		id: 'splashScale',
 		label: 'Splash Scale',
 		type: 'scale',
-		min: 0.1,
-		max: 0.5,
+		min: 0.05,
+		max: 1.0,
 		step: 0.05,
-		tip: '0.2-0.3 standard • 0.15-0.2 subtle • 0.3-0.4 prominent',
+		tip: '0.2-0.3 standard • 0.5-1.0 large',
+	},
+	{
+		id: 'outputPath',
+		label: 'Output Path',
+		type: 'input',
+		tip: 'Leave empty for timestamped folder, or enter custom path',
 	},
 ]
+
+// ─── Scale Warnings (Platform Guidelines) ──────────────────────────────────
+
+/**
+ * Get warning message for icon scale based on platform guidelines.
+ * - Android: Safe zone is 66dp/108dp ≈ 61% (Material Design guidelines)
+ * - iOS: No strict limit, but content should be visible at small sizes
+ */
+function getIconScaleWarning(scale: number): string | null {
+	if (scale > 0.66) {
+		return `⚠ Android: >66% may clip (safe zone is 66dp of 108dp canvas)`
+	}
+	if (scale < 0.4) {
+		return `ℹ Icon may be hard to see at small sizes (20px)`
+	}
+	return null
+}
+
+/**
+ * Get warning message for splash scale based on platform guidelines.
+ * - iOS HIG: Splash should be simple, centered branding
+ * - Android: Splash icon recommended at 200dp max
+ */
+function getSplashScaleWarning(scale: number): string | null {
+	if (scale > 0.5) {
+		return `ℹ Large splash may feel overwhelming on smaller devices`
+	}
+	if (scale < 0.1) {
+		return `ℹ Very small splash may be hard to see`
+	}
+	return null
+}
 
 // ─── Form State Interface ──────────────────────────────────────────────────
 
@@ -190,6 +230,7 @@ export interface ConfigFormState {
 	fgColor: string
 	iconScale: number
 	splashScale: number
+	outputPath: string
 }
 
 // ─── Color Utility Functions ───────────────────────────────────────────────
@@ -253,16 +294,13 @@ function getContrastBorder(hex: string): string {
 /**
  * Generate datetime-based output directory path.
  *
- * @returns Path like './assets/generated-20240115-143052'.
+ * @returns Path like './assets/generated_2024-01-15_14-30-52'.
  */
 function getOutputDir(): string {
 	const now = new Date()
-	const timestamp = now
-		.toISOString()
-		.replace(/[-:]/g, '')
-		.replace('T', '-')
-		.slice(0, 15)
-	return `./assets/generated-${timestamp}`
+	const date = now.toISOString().slice(0, 10) // YYYY-MM-DD
+	const time = now.toISOString().slice(11, 19).replace(/:/g, '-') // HH-MM-SS
+	return `./assets/generated_${date}_${time}`
 }
 
 // ─── Component Props ───────────────────────────────────────────────────────
@@ -284,6 +322,7 @@ const DEFAULTS: ConfigFormState = {
 	fgColor: '#000000',
 	iconScale: 0.7,
 	splashScale: 0.25,
+	outputPath: '',
 }
 
 // ─── Main Component ────────────────────────────────────────────────────────
@@ -317,6 +356,7 @@ export function ConfigScreen({
 		fgColor,
 		iconScale,
 		splashScale,
+		outputPath,
 	} = formState
 
 	// Font autocomplete suggestions and loading state.
@@ -411,6 +451,10 @@ export function ConfigScreen({
 
 		// Always show scale fields at the end
 		visible.push(...scaleFields)
+
+		// Always show output path field at the end
+		const outputPathField = FIELDS.find(f => f.id === 'outputPath')
+		if (outputPathField) visible.push(outputPathField)
 
 		return visible
 	}
@@ -516,6 +560,8 @@ export function ConfigScreen({
 				return fgFont
 			case 'fgColor':
 				return fgColor
+			case 'outputPath':
+				return outputPath
 			default:
 				return ''
 		}
@@ -538,6 +584,9 @@ export function ConfigScreen({
 				break
 			case 'fgColor':
 				updateField('fgColor', value)
+				break
+			case 'outputPath':
+				updateField('outputPath', value)
 				break
 		}
 	}
@@ -611,6 +660,11 @@ export function ConfigScreen({
 			foreground = { type: 'image', imagePath: './icon.png' }
 		}
 
+		// Determine output directory: use custom path or generate timestamped default.
+		const finalOutputDir = outputPath.trim()
+			? resolvePath(outputPath.trim())
+			: getOutputDir()
+
 		// Invoke completion callback with full configuration.
 		onComplete({
 			appName,
@@ -618,7 +672,7 @@ export function ConfigScreen({
 			assetTypes: ['icon', 'splash', 'adaptive', 'favicon'] as AssetType[],
 			background,
 			foreground,
-			outputDir: getOutputDir(),
+			outputDir: finalOutputDir,
 			iconScale,
 			splashScale,
 		})
@@ -754,6 +808,24 @@ export function ConfigScreen({
 								<text fg={colors.textDim}>💡 No matching fonts found</text>
 							) : (
 								<text fg={colors.tip}>💡 {currentField?.tip}</text>
+							)}
+						</>
+					) : currentField?.id === 'iconScale' ? (
+						<>
+							<text fg={colors.tip}>💡 {currentField?.tip}</text>
+							{getIconScaleWarning(iconScale) && (
+								<text fg={colors.warning}>
+									{getIconScaleWarning(iconScale)}
+								</text>
+							)}
+						</>
+					) : currentField?.id === 'splashScale' ? (
+						<>
+							<text fg={colors.tip}>💡 {currentField?.tip}</text>
+							{getSplashScaleWarning(splashScale) && (
+								<text fg={colors.warning}>
+									{getSplashScaleWarning(splashScale)}
+								</text>
 							)}
 						</>
 					) : (

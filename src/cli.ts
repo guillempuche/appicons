@@ -42,6 +42,7 @@ import {
 	type GenerationContext,
 	generateInstructions,
 } from './utils/instructions'
+import { resolvePath } from './utils/path_utils'
 import {
 	checkForUpdates,
 	printUpdateNoticeIfCached,
@@ -49,18 +50,47 @@ import {
 	scheduleBackgroundVersionCheck,
 } from './utils/version_check'
 
+// ─── Scale Warnings (Platform Guidelines) ──────────────────────────────────
+
+/**
+ * Get warning for icon scale based on platform guidelines.
+ * - Android: Safe zone is 66dp/108dp ≈ 61% (Material Design guidelines)
+ * - iOS: No strict limit, but content should be visible at small sizes
+ */
+function getIconScaleWarning(scale: number): string | null {
+	if (scale > 0.66) {
+		return 'Warning: Icon scale >66% may clip on Android (safe zone is 66dp of 108dp canvas)'
+	}
+	if (scale < 0.4) {
+		return 'Info: Icon may be hard to see at small sizes (20px)'
+	}
+	return null
+}
+
+/**
+ * Get warning for splash scale based on platform guidelines.
+ * - iOS HIG: Splash should be simple, centered branding
+ * - Android: Splash icon recommended at 200dp max
+ */
+function getSplashScaleWarning(scale: number): string | null {
+	if (scale > 0.5) {
+		return 'Info: Large splash (>50%) may feel overwhelming on smaller devices'
+	}
+	if (scale < 0.1) {
+		return 'Info: Very small splash (<10%) may be hard to see'
+	}
+	return null
+}
+
 /**
  * Generate datetime-based output directory.
- * Format: ./assets/generated-YYYYMMDD-HHMMSS
+ * Format: ./assets/generated_YYYY-MM-DD_HH-MM-SS
  */
 function getOutputDir(): string {
 	const now = new Date()
-	const timestamp = now
-		.toISOString()
-		.replace(/[-:]/g, '')
-		.replace('T', '-')
-		.slice(0, 15)
-	return `./assets/generated-${timestamp}`
+	const date = now.toISOString().slice(0, 10) // YYYY-MM-DD
+	const time = now.toISOString().slice(11, 19).replace(/:/g, '-') // HH-MM-SS
+	return `./assets/generated_${date}_${time}`
 }
 
 // ─── Global Options ────────────────────────────────────────────────────────
@@ -120,6 +150,13 @@ const splashScaleOpt = Options.text('splash-scale').pipe(
 )
 
 // Output behavior options.
+const outputOpt = Options.text('output').pipe(
+	Options.withAlias('o'),
+	Options.withDescription(
+		'Output directory path (default: ./assets/generated_<timestamp>)',
+	),
+	Options.optional,
+)
 const dryRunOpt = Options.boolean('dry-run').pipe(Options.withDefault(false))
 const noZipOpt = Options.boolean('no-zip').pipe(Options.withDefault(false))
 
@@ -155,6 +192,7 @@ const generate = Command.make(
 		fgImage: fgImageOpt,
 		iconScale: iconScaleOpt,
 		splashScale: splashScaleOpt,
+		output: outputOpt,
 		format: formatOpt,
 		quiet: quietOpt,
 		dryRun: dryRunOpt,
@@ -163,7 +201,9 @@ const generate = Command.make(
 	opts =>
 		Effect.promise(async () => {
 			const startTime = Date.now()
-			const outputDir = getOutputDir()
+			const outputDir = Option.isSome(opts.output)
+				? resolvePath(opts.output.value)
+				: getOutputDir()
 
 			// Build background configuration based on the selected type.
 			const bgType = opts.bgType as 'color' | 'gradient' | 'image'
@@ -246,14 +286,20 @@ const generate = Command.make(
 			const iconScale = parseFloat(opts.iconScale)
 			const splashScale = parseFloat(opts.splashScale)
 
-			if (iconScale < 0.2 || iconScale > 1.0) {
-				console.error('Error: --icon-scale must be between 0.2 and 1.0')
+			if (iconScale < 0.1 || iconScale > 1.5) {
+				console.error('Error: --icon-scale must be between 0.1 and 1.5')
 				process.exit(2)
 			}
-			if (splashScale < 0.1 || splashScale > 0.5) {
-				console.error('Error: --splash-scale must be between 0.1 and 0.5')
+			if (splashScale < 0.05 || splashScale > 1.0) {
+				console.error('Error: --splash-scale must be between 0.05 and 1.0')
 				process.exit(2)
 			}
+
+			// Show scale warnings based on platform guidelines
+			const iconWarning = getIconScaleWarning(iconScale)
+			const splashWarning = getSplashScaleWarning(splashScale)
+			if (iconWarning) console.warn(`\x1b[33m${iconWarning}\x1b[0m`)
+			if (splashWarning) console.warn(`\x1b[33m${splashWarning}\x1b[0m`)
 
 			// Assemble the complete asset generator configuration.
 			const config: AssetGeneratorConfig = {

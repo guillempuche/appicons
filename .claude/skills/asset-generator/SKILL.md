@@ -77,16 +77,16 @@ bun run dev generate --format json --quiet
 
 ## Output Structure
 
-Assets are saved to `./assets/generated-{timestamp}/`:
+Assets are saved to `./assets/generated_YYYY-MM-DD_HH-MM-SS/`:
 
 - `ios/` - App icons and splash screens
 - `android/` - Launcher icons, adaptive icons, splash screens
 - `web/` - PWA icons and favicons
-- `INSTRUCTIONS.md` - Integration guide
+- `README.md` - Config values & integration guide
 
 ## Scale Guidelines
 
 | Option | Range | Default | Best For |
 |--------|-------|---------|----------|
-| `--icon-scale` | 0.2-1.0 | 0.7 | 0.6-0.7 standard, 0.8-0.9 bold |
-| `--splash-scale` | 0.1-0.5 | 0.25 | 0.2-0.3 standard, 0.15-0.2 minimal |
+| `--icon-scale` | 0.1-1.5 | 0.7 | 0.6-0.7 standard, 0.8-0.9 bold, 1.0+ edge-to-edge |
+| `--splash-scale` | 0.05-1.0 | 0.25 | 0.2-0.3 standard, 0.5-1.0 large |

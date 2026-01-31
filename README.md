@@ -165,7 +165,7 @@ appicons completion >> ~/.zshrc   # zsh
 ## Output Structure
 
 ```
-assets/generated-YYYYMMDD-HHMMSS/
+assets/generated_YYYY-MM-DD_HH-MM-SS/
 ├── ios/                               # iOS assets
 │   ├── icon-20.png                    # Default (light) icons
 │   ├── icon-20@2x.png
@@ -204,7 +204,7 @@ assets/generated-YYYYMMDD-HHMMSS/
 │   ├── icon-monochrome-192x192.png    # PWA monochrome
 │   ├── icon-monochrome-512x512.png    # PWA monochrome
 │   └── site.webmanifest               # W3C Web App Manifest
-└── INSTRUCTIONS.md                    # Integration guide
+└── README.md                 # Config values & integration guide
 ```
 
 ## Platform Specifications

@@ -49,8 +49,8 @@ Main configuration object for asset generation:
 | `background` | `BackgroundConfig` | Background layer configuration |
 | `foreground` | `ForegroundConfig` | Foreground layer configuration |
 | `outputDir` | `string` | Output directory path |
-| `iconScale` | `number?` | Icon foreground scale (0.2-1.0, default 0.7) |
-| `splashScale` | `number?` | Splash foreground scale (0.1-0.5, default 0.25) |
+| `iconScale` | `number?` | Icon foreground scale (0.1-1.5, default 0.7) |
+| `splashScale` | `number?` | Splash foreground scale (0.05-1.0, default 0.25) |
 | `generateDarkMode` | `boolean?` | Generate dark mode variants |
 | `darkBackground` | `BackgroundConfig?` | Dark mode background |
 
@@ -93,7 +93,7 @@ Main configuration object for asset generation:
 Generated assets are organized by platform:
 
 ```
-assets/generated-YYYYMMDD-HHMMSS/
+assets/generated_YYYY-MM-DD_HH-MM-SS/
 ├── ios/
 │   ├── icon-1024.png
 │   └── splash-*.png
@@ -105,7 +105,7 @@ assets/generated-YYYYMMDD-HHMMSS/
 ├── web/
 │   ├── icon-*.png
 │   └── favicon.ico
-└── INSTRUCTIONS.md
+└── README.md
 ```
 
 ## Dependencies
