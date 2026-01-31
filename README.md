@@ -225,6 +225,7 @@ curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/
 ```
 
 This installs:
+
 - Bun runtime (if not already installed)
 - appicons binary to `~/.appicons`
 - Symlink to `/usr/local/bin/appicons`
