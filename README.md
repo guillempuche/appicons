@@ -1,10 +1,30 @@
 # appicons
 
+**App Icon Generator CLI** — Generate icons, splash screens, and favicons for iOS, Android & Web
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![iOS 18 Ready](https://img.shields.io/badge/iOS_18-Ready-blue.svg)](https://developer.apple.com/design/human-interface-guidelines/app-icons)
 [![Android 13+ Ready](https://img.shields.io/badge/Android_13+-Ready-green.svg)](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive)
 
-Generate all required app assets (icons, splash screens, adaptive icons, favicons) for iOS, Android, and Web platforms from a single configuration. Includes full support for iOS 18 dark/tinted/clear icon appearances and Android 13+ Material You themed icons.
+A CLI tool that generates **100+ app assets** from a single command. Create app icons, launch screens, adaptive icons, and PWA assets for React Native, Expo, Flutter, native iOS/Android, and web apps.
+
+- **iOS 18 ready**: Dark mode, tinted, and clear icon appearances
+- **Android 13+ ready**: Material You themed monochrome icons
+- **PWA compliant**: Maskable and monochrome icons with auto-generated `site.webmanifest`
+- **Google Fonts**: Use any font from fonts.google.com for text-based icons
+
+## Quick Start
+
+```bash
+# Install
+curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/install.sh | bash
+
+# Generate icons with letter "A" on indigo background
+appicons generate --fg-text "A" --fg-color "#FFFFFF" --bg-color "#6366F1"
+
+# Or launch interactive mode
+appicons
+```
 
 ## Installation
 
@@ -164,38 +184,121 @@ appicons completion >> ~/.zshrc   # zsh
 
 ## Output Structure
 
+Generated with: `appicons generate --name "Example" --fg-text "E" --fg-color "#FFFFFF" --bg-color "#6366F1"`
+
 ```
-assets/generated_YYYY-MM-DD_HH-MM-SS/
-├── ios/                               # iOS assets
-│   ├── icon-20.png                    # Default (light) icons
+assets/example/
+├── ios/
+│   ├── icon-20.png
 │   ├── icon-20@2x.png
+│   ├── icon-20@3x.png
+│   ├── icon-29.png
+│   ├── icon-29@2x.png
+│   ├── icon-29@3x.png
+│   ├── icon-40.png
+│   ├── icon-40@2x.png
+│   ├── icon-40@3x.png
+│   ├── icon-60@2x.png
 │   ├── icon-60@3x.png
+│   ├── icon-76.png
+│   ├── icon-76@2x.png
+│   ├── icon-83.5@2x.png
 │   ├── icon-1024.png
 │   ├── dark/                          # iOS 18 dark mode
 │   │   ├── icon-60@2x.png
+│   │   ├── icon-60@3x.png
+│   │   ├── icon-76@2x.png
+│   │   ├── icon-83.5@2x.png
 │   │   └── icon-1024.png
 │   ├── tinted/                        # iOS 18 tinted (monochrome)
 │   │   ├── icon-60@2x.png
+│   │   ├── icon-60@3x.png
+│   │   ├── icon-76@2x.png
+│   │   ├── icon-83.5@2x.png
 │   │   └── icon-1024.png
 │   ├── clear-light/                   # iOS 18 clear (light bg)
-│   │   └── icon-*.png
+│   │   ├── icon-60@2x.png
+│   │   ├── icon-60@3x.png
+│   │   ├── icon-76@2x.png
+│   │   ├── icon-83.5@2x.png
+│   │   └── icon-1024.png
 │   ├── clear-dark/                    # iOS 18 clear (dark bg)
-│   │   └── icon-*.png
-│   └── splash-*.png                   # Splash screens
-├── android/                           # Android assets
+│   │   ├── icon-60@2x.png
+│   │   ├── icon-60@3x.png
+│   │   ├── icon-76@2x.png
+│   │   ├── icon-83.5@2x.png
+│   │   └── icon-1024.png
+│   ├── splash-640x1136.png
+│   ├── splash-750x1334.png
+│   ├── splash-828x1792.png
+│   ├── splash-1125x2436.png
+│   ├── splash-1170x2532.png
+│   ├── splash-1179x2556.png
+│   ├── splash-1242x2208.png
+│   ├── splash-1242x2688.png
+│   ├── splash-1290x2796.png
+│   ├── splash-1536x2048.png
+│   ├── splash-1668x2224.png
+│   ├── splash-1668x2388.png
+│   └── splash-2048x2732.png
+├── android/
 │   ├── mipmap-mdpi/
 │   │   ├── ic_launcher.png
 │   │   ├── ic_launcher_foreground.png
 │   │   ├── ic_launcher_background.png
 │   │   └── ic_launcher_monochrome.png # Android 13+ themed
+│   ├── mipmap-hdpi/
+│   │   ├── ic_launcher.png
+│   │   ├── ic_launcher_foreground.png
+│   │   ├── ic_launcher_background.png
+│   │   └── ic_launcher_monochrome.png
+│   ├── mipmap-xhdpi/
+│   │   ├── ic_launcher.png
+│   │   ├── ic_launcher_foreground.png
+│   │   ├── ic_launcher_background.png
+│   │   └── ic_launcher_monochrome.png
+│   ├── mipmap-xxhdpi/
+│   │   ├── ic_launcher.png
+│   │   ├── ic_launcher_foreground.png
+│   │   ├── ic_launcher_background.png
+│   │   └── ic_launcher_monochrome.png
 │   ├── mipmap-xxxhdpi/
+│   │   ├── ic_launcher.png
+│   │   ├── ic_launcher_foreground.png
+│   │   ├── ic_launcher_background.png
+│   │   └── ic_launcher_monochrome.png
+│   ├── drawable-mdpi/
+│   │   └── splash.png
+│   ├── drawable-hdpi/
+│   │   └── splash.png
 │   ├── drawable-xhdpi/
 │   │   └── splash.png
-│   └── drawable-night-xhdpi/          # Dark splash
+│   ├── drawable-xxhdpi/
+│   │   └── splash.png
+│   ├── drawable-xxxhdpi/
+│   │   └── splash.png
+│   ├── drawable-night-mdpi/           # Dark splash screens
+│   │   └── splash.png
+│   ├── drawable-night-hdpi/
+│   │   └── splash.png
+│   ├── drawable-night-xhdpi/
+│   │   └── splash.png
+│   ├── drawable-night-xxhdpi/
+│   │   └── splash.png
+│   └── drawable-night-xxxhdpi/
 │       └── splash.png
-├── web/                               # Web/PWA assets
+├── web/
 │   ├── favicon-16x16.png
 │   ├── favicon-32x32.png
+│   ├── favicon-48x48.png
+│   ├── apple-touch-icon-57x57.png
+│   ├── apple-touch-icon-60x60.png
+│   ├── apple-touch-icon-72x72.png
+│   ├── apple-touch-icon-76x76.png
+│   ├── apple-touch-icon-114x114.png
+│   ├── apple-touch-icon-120x120.png
+│   ├── apple-touch-icon-144x144.png
+│   ├── apple-touch-icon-152x152.png
 │   ├── apple-touch-icon-180x180.png
 │   ├── icon-192x192.png               # PWA icon (any)
 │   ├── icon-512x512.png               # PWA icon (any)
@@ -204,7 +307,7 @@ assets/generated_YYYY-MM-DD_HH-MM-SS/
 │   ├── icon-monochrome-192x192.png    # PWA monochrome
 │   ├── icon-monochrome-512x512.png    # PWA monochrome
 │   └── site.webmanifest               # W3C Web App Manifest
-└── README.md                 # Config values & integration guide
+└── README.md                          # Config values & integration guide
 ```
 
 ## Platform Specifications
@@ -255,6 +358,27 @@ assets/generated_YYYY-MM-DD_HH-MM-SS/
    - **Display fonts** (Bebas Neue, Anton, Oswald): Bold, attention-grabbing
 
 6. **Google Fonts**: All fonts are loaded from Google Fonts API. Any font from fonts.google.com can be used.
+
+## Use Cases
+
+- **React Native / Expo apps**: Generate all icons and splash screens, copy to `assets/` folder
+- **Flutter apps**: Generate Android adaptive icons and iOS app icons
+- **Native iOS apps**: Full iOS 18 icon set with dark/tinted/clear variants for Xcode
+- **Native Android apps**: Adaptive icons with monochrome layer for Material You theming
+- **PWA / Web apps**: Favicons, Apple touch icons, and maskable icons with manifest
+- **Prototypes**: Quickly generate placeholder icons with text and colors
+- **CI/CD pipelines**: Automate asset generation with `--format json` for scripting
+
+## Why appicons?
+
+| Feature | appicons | app-icon | pwa-asset-generator |
+|---------|----------|----------|---------------------|
+| iOS 18 dark/tinted icons | Yes | No | No |
+| Android 13+ monochrome | Yes | No | No |
+| PWA maskable icons | Yes | No | Yes |
+| Google Fonts support | Yes | No | No |
+| Interactive TUI | Yes | No | No |
+| Single binary install | Yes | No | No |
 
 ## Contributing
 

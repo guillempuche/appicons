@@ -8,3 +8,6 @@ assets/generated-*/
 # Generated assets
 assets/*/*
 !assets/**/.gitkeep
+
+# Example output (generated for docs)
+assets/example/
