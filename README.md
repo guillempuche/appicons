@@ -182,132 +182,77 @@ appicons completion >> ~/.bashrc  # bash
 appicons completion >> ~/.zshrc   # zsh
 ```
 
+## Examples
+
+Three example outputs are included in [`assets/`](assets/) showcasing different foreground types:
+
+<table>
+<tr>
+<td align="center"><strong>Text</strong></td>
+<td align="center"><strong>SVG Icon</strong></td>
+<td align="center"><strong>Image</strong></td>
+</tr>
+<tr>
+<td align="center"><img src="assets/example_text/ios/icon-1024.png" width="180" alt="Text example"></td>
+<td align="center"><img src="assets/example_svg/ios/icon-1024.png" width="180" alt="SVG example"></td>
+<td align="center"><img src="assets/example_image/ios/icon-1024.png" width="180" alt="Image example"></td>
+</tr>
+<tr>
+<td align="center"><a href="assets/example_text/">example_text/</a></td>
+<td align="center"><a href="assets/example_svg/">example_svg/</a></td>
+<td align="center"><a href="assets/example_image/">example_image/</a></td>
+</tr>
+</table>
+
+### Text + Solid Color
+
+```bash
+appicons generate --fg-text "N" --fg-color "#FFFFFF" --bg-color "#FF6B6B"
+```
+
+### SVG Icon + Gradient
+
+```bash
+appicons generate --fg-type svg --fg-svg ./icon.svg \
+  --bg-type gradient --bg-gradient-colors "#667eea,#764ba2"
+```
+
+### Image + Gradient
+
+```bash
+appicons generate --fg-type image --fg-image ./logo.png \
+  --bg-type gradient --bg-gradient-colors "#E0E7FF,#C7D2FE"
+```
+
 ## Output Structure
 
-Generated with: `appicons generate --name "Example" --fg-text "E" --fg-color "#FFFFFF" --bg-color "#6366F1"`
+Each generation creates 96 assets across all platforms:
 
 ```
-assets/example/
+assets/<output-folder>/
 ├── ios/
-│   ├── icon-20.png
-│   ├── icon-20@2x.png
-│   ├── icon-20@3x.png
-│   ├── icon-29.png
-│   ├── icon-29@2x.png
-│   ├── icon-29@3x.png
-│   ├── icon-40.png
-│   ├── icon-40@2x.png
-│   ├── icon-40@3x.png
-│   ├── icon-60@2x.png
-│   ├── icon-60@3x.png
-│   ├── icon-76.png
-│   ├── icon-76@2x.png
-│   ├── icon-83.5@2x.png
-│   ├── icon-1024.png
-│   ├── dark/                          # iOS 18 dark mode
-│   │   ├── icon-60@2x.png
-│   │   ├── icon-60@3x.png
-│   │   ├── icon-76@2x.png
-│   │   ├── icon-83.5@2x.png
-│   │   └── icon-1024.png
-│   ├── tinted/                        # iOS 18 tinted (monochrome)
-│   │   ├── icon-60@2x.png
-│   │   ├── icon-60@3x.png
-│   │   ├── icon-76@2x.png
-│   │   ├── icon-83.5@2x.png
-│   │   └── icon-1024.png
-│   ├── clear-light/                   # iOS 18 clear (light bg)
-│   │   ├── icon-60@2x.png
-│   │   ├── icon-60@3x.png
-│   │   ├── icon-76@2x.png
-│   │   ├── icon-83.5@2x.png
-│   │   └── icon-1024.png
-│   ├── clear-dark/                    # iOS 18 clear (dark bg)
-│   │   ├── icon-60@2x.png
-│   │   ├── icon-60@3x.png
-│   │   ├── icon-76@2x.png
-│   │   ├── icon-83.5@2x.png
-│   │   └── icon-1024.png
-│   ├── splash-640x1136.png
-│   ├── splash-750x1334.png
-│   ├── splash-828x1792.png
-│   ├── splash-1125x2436.png
-│   ├── splash-1170x2532.png
-│   ├── splash-1179x2556.png
-│   ├── splash-1242x2208.png
-│   ├── splash-1242x2688.png
-│   ├── splash-1290x2796.png
-│   ├── splash-1536x2048.png
-│   ├── splash-1668x2224.png
-│   ├── splash-1668x2388.png
-│   └── splash-2048x2732.png
+│   ├── icon-{20,29,40,60,76,83.5,1024}{,@2x,@3x}.png
+│   ├── dark/icon-*.png                # iOS 18 dark mode
+│   ├── tinted/icon-*.png              # iOS 18 tinted (monochrome)
+│   ├── clear-light/icon-*.png         # iOS 18 clear (light bg)
+│   ├── clear-dark/icon-*.png          # iOS 18 clear (dark bg)
+│   └── splash-*.png                   # 13 splash screen sizes
 ├── android/
-│   ├── mipmap-mdpi/
+│   ├── mipmap-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/
 │   │   ├── ic_launcher.png
 │   │   ├── ic_launcher_foreground.png
 │   │   ├── ic_launcher_background.png
 │   │   └── ic_launcher_monochrome.png # Android 13+ themed
-│   ├── mipmap-hdpi/
-│   │   ├── ic_launcher.png
-│   │   ├── ic_launcher_foreground.png
-│   │   ├── ic_launcher_background.png
-│   │   └── ic_launcher_monochrome.png
-│   ├── mipmap-xhdpi/
-│   │   ├── ic_launcher.png
-│   │   ├── ic_launcher_foreground.png
-│   │   ├── ic_launcher_background.png
-│   │   └── ic_launcher_monochrome.png
-│   ├── mipmap-xxhdpi/
-│   │   ├── ic_launcher.png
-│   │   ├── ic_launcher_foreground.png
-│   │   ├── ic_launcher_background.png
-│   │   └── ic_launcher_monochrome.png
-│   ├── mipmap-xxxhdpi/
-│   │   ├── ic_launcher.png
-│   │   ├── ic_launcher_foreground.png
-│   │   ├── ic_launcher_background.png
-│   │   └── ic_launcher_monochrome.png
-│   ├── drawable-mdpi/
-│   │   └── splash.png
-│   ├── drawable-hdpi/
-│   │   └── splash.png
-│   ├── drawable-xhdpi/
-│   │   └── splash.png
-│   ├── drawable-xxhdpi/
-│   │   └── splash.png
-│   ├── drawable-xxxhdpi/
-│   │   └── splash.png
-│   ├── drawable-night-mdpi/           # Dark splash screens
-│   │   └── splash.png
-│   ├── drawable-night-hdpi/
-│   │   └── splash.png
-│   ├── drawable-night-xhdpi/
-│   │   └── splash.png
-│   ├── drawable-night-xxhdpi/
-│   │   └── splash.png
-│   └── drawable-night-xxxhdpi/
-│       └── splash.png
+│   ├── drawable-{mdpi→xxxhdpi}/splash.png
+│   └── drawable-night-{mdpi→xxxhdpi}/splash.png
 ├── web/
-│   ├── favicon-16x16.png
-│   ├── favicon-32x32.png
-│   ├── favicon-48x48.png
-│   ├── apple-touch-icon-57x57.png
-│   ├── apple-touch-icon-60x60.png
-│   ├── apple-touch-icon-72x72.png
-│   ├── apple-touch-icon-76x76.png
-│   ├── apple-touch-icon-114x114.png
-│   ├── apple-touch-icon-120x120.png
-│   ├── apple-touch-icon-144x144.png
-│   ├── apple-touch-icon-152x152.png
-│   ├── apple-touch-icon-180x180.png
-│   ├── icon-192x192.png               # PWA icon (any)
-│   ├── icon-512x512.png               # PWA icon (any)
-│   ├── icon-maskable-192x192.png      # PWA maskable
-│   ├── icon-maskable-512x512.png      # PWA maskable
-│   ├── icon-monochrome-192x192.png    # PWA monochrome
-│   ├── icon-monochrome-512x512.png    # PWA monochrome
+│   ├── favicon-{16,32,48}x{16,32,48}.png
+│   ├── apple-touch-icon-*.png         # 9 sizes (57-180px)
+│   ├── icon-{192,512}x{192,512}.png   # PWA (any)
+│   ├── icon-maskable-*.png            # PWA maskable
+│   ├── icon-monochrome-*.png          # PWA monochrome
 │   └── site.webmanifest               # W3C Web App Manifest
-└── README.md                          # Config values & integration guide
+└── README.md                          # Config & integration guide
 ```
 
 ## Platform Specifications

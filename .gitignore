@@ -5,9 +5,8 @@ dist/
 assets/generated-*/
 .claude/settings.local.json
 
-# Generated assets
+# Generated assets (except examples and samples)
 assets/*/*
 !assets/**/.gitkeep
-
-# Example output (generated for docs)
-assets/example/
+!assets/example_*/**
+!assets/samples/**
