@@ -20,7 +20,7 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import sharp from 'sharp'
-import toIco from 'to-ico'
+import { encode as encodeIco } from 'sharp-ico'
 
 import {
 	getAssetsByPlatform,
@@ -799,7 +799,7 @@ async function generateFaviconIco(
 	}
 
 	// Convert PNG buffers to ICO format
-	const icoBuffer = await toIco(pngBuffers)
+	const icoBuffer = encodeIco(pngBuffers)
 
 	// Write to web/favicon.ico
 	const webDir = join(outputDir, 'web')

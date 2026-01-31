@@ -39,9 +39,9 @@ vi.mock('../../utils/instructions', () => ({
 	formatInstructionsText: vi.fn().mockReturnValue('# Instructions'),
 }))
 
-// Mock to-ico for favicon.ico generation
-vi.mock('to-ico', () => ({
-	default: vi.fn().mockResolvedValue(Buffer.from('ico-data')),
+// Mock sharp-ico for favicon.ico generation
+vi.mock('sharp-ico', () => ({
+	encode: vi.fn().mockReturnValue(Buffer.from('ico-data')),
 }))
 
 // Mock history to avoid file system operations during tests
