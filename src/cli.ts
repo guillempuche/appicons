@@ -52,7 +52,7 @@ import {
 } from './utils/instructions'
 import { resolvePath } from './utils/path_utils'
 import {
-	checkForUpdates,
+	checkForUpdatesNoCache,
 	printUpdateNoticeIfCached,
 	runUpdateScript,
 	scheduleBackgroundVersionCheck,
@@ -844,7 +844,7 @@ const updateCmd = Command.make('update', {}, () =>
 	Effect.promise(async () => {
 		console.log('Checking for updates...\n')
 
-		const info = await checkForUpdates()
+		const info = await checkForUpdatesNoCache()
 
 		if (!info) {
 			console.error('Failed to check for updates. Please try again later.')

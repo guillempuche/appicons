@@ -177,6 +177,31 @@ export async function checkForUpdates(): Promise<VersionInfo | null> {
 }
 
 /**
+ * Check for updates bypassing cache (always fetches from GitHub).
+ * Use this for explicit update commands where fresh data is needed.
+ * Returns null if check fails or is unavailable.
+ */
+export async function checkForUpdatesNoCache(): Promise<VersionInfo | null> {
+	const current = getCurrentVersion()
+
+	// Always fetch fresh version
+	const latest = await getLatestVersion()
+	if (!latest) {
+		return null
+	}
+
+	// Update cache with fresh data
+	writeCache(latest)
+
+	return {
+		current,
+		latest,
+		isOutdated: isVersionOutdated(current, latest),
+		releaseUrl: `https://github.com/${GITHUB_REPO}/releases/latest`,
+	}
+}
+
+/**
  * Read version info from cache only (no network).
  * Used for non-blocking update notice display.
  */
