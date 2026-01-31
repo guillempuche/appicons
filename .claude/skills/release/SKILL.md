@@ -10,10 +10,10 @@ Create versioned releases with CalVer versioning and GitHub binary distribution.
 ## Quick Release
 
 ```bash
-GITHUB_TOKEN=$(gh auth token) bun run release
+GITHUB_TOKEN=$(gh auth token) bun run release --ci
 ```
 
-This command:
+The `--ci` flag runs non-interactively (no prompts). This command:
 1. Runs typecheck and lint checks
 2. Builds the project
 3. Bumps version (CalVer: `YYYY.MM.PATCH`)
