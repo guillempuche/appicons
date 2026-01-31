@@ -14,7 +14,7 @@
  * All dimensions are in pixels. Scale factors (@2x, @3x) indicate pixel density.
  */
 
-import type { AssetSpec, ColorMode } from '../types'
+import type { AssetSpec } from '../types'
 
 // ─── iOS App Icons ─────────────────────────────────────────────────────────
 

@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import type { AssetGeneratorConfig, AssetType, Platform } from '../../types'
+import type { AssetGeneratorConfig } from '../../types'
 import {
 	formatInstructionsJson,
 	formatInstructionsText,

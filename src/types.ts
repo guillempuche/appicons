@@ -255,3 +255,42 @@ export interface GenerationResult {
 	/** Array of error messages for failed assets. */
 	errors?: string[]
 }
+
+// ─── History Types ─────────────────────────────────────────────────────────
+
+/**
+ * A single history entry representing a past generation.
+ *
+ * Stored in ~/.appicons/history.json for persistence across sessions.
+ * Allows users to reload and reuse previous configurations.
+ */
+export interface HistoryEntry {
+	/** Unique identifier (timestamp-based). */
+	id: string
+
+	/** ISO 8601 datetime when the entry was created. */
+	createdAt: string
+
+	/** Optional user-provided name for easy identification. */
+	name?: string
+
+	/** Full generation configuration that was used. */
+	config: AssetGeneratorConfig
+
+	/** Directory where assets were generated. */
+	outputDir: string
+}
+
+/**
+ * History file structure stored at ~/.appicons/history.json.
+ *
+ * Version field allows for future schema migrations.
+ * Entries are stored newest first, with a maximum of 50 entries.
+ */
+export interface HistoryFile {
+	/** Schema version for future migrations. */
+	version: 1
+
+	/** Array of history entries, newest first. Max 50 entries. */
+	entries: HistoryEntry[]
+}

@@ -37,6 +37,14 @@ import {
 	suggestSimilarFonts,
 } from './utils/google_fonts_api'
 import {
+	deleteHistoryEntry,
+	formatHistoryDate,
+	getEntrySummary,
+	getHistoryEntry,
+	listHistory,
+	renameHistoryEntry,
+} from './utils/history'
+import {
 	formatInstructionsJson,
 	formatInstructionsText,
 	type GenerationContext,
@@ -160,6 +168,12 @@ const outputOpt = Options.text('output').pipe(
 const dryRunOpt = Options.boolean('dry-run').pipe(Options.withDefault(false))
 const noZipOpt = Options.boolean('no-zip').pipe(Options.withDefault(false))
 
+// History options.
+const fromHistoryOpt = Options.text('from-history').pipe(
+	Options.withDescription('Load config from history entry ID'),
+	Options.optional,
+)
+
 /**
  * The 'generate' subcommand creates app assets from CLI options.
  *
@@ -197,10 +211,124 @@ const generate = Command.make(
 		quiet: quietOpt,
 		dryRun: dryRunOpt,
 		noZip: noZipOpt,
+		fromHistory: fromHistoryOpt,
 	},
 	opts =>
 		Effect.promise(async () => {
 			const startTime = Date.now()
+
+			// If --from-history is provided, load config from history entry
+			if (Option.isSome(opts.fromHistory)) {
+				const historyId = opts.fromHistory.value
+				const entry = await getHistoryEntry(historyId)
+
+				if (!entry) {
+					console.error(`Error: History entry "${historyId}" not found`)
+					console.error('\nUse "appicons history" to list available entries')
+					process.exit(2)
+				}
+
+				// Use config from history, but allow overrides from CLI options
+				const historyConfig = entry.config
+
+				// Override with CLI options if explicitly provided
+				const outputDir = Option.isSome(opts.output)
+					? resolvePath(opts.output.value)
+					: getOutputDir()
+
+				// Parse platforms/types if different from defaults
+				const platforms =
+					opts.platforms !== 'ios,android,web'
+						? (opts.platforms.split(',') as ('ios' | 'android' | 'web')[])
+						: historyConfig.platforms
+
+				const assetTypes =
+					opts.types !== 'icon,splash,adaptive,favicon'
+						? (opts.types.split(',') as (
+								| 'icon'
+								| 'splash'
+								| 'adaptive'
+								| 'favicon'
+							)[])
+						: historyConfig.assetTypes
+
+				const config: AssetGeneratorConfig = {
+					...historyConfig,
+					platforms,
+					assetTypes,
+					outputDir,
+				}
+
+				if (!opts.quiet) {
+					console.log(
+						`\nLoading config from history: ${entry.name || formatHistoryDate(entry.createdAt)}`,
+					)
+					console.log(`Output directory: ${outputDir}`)
+				}
+
+				// Execute asset generation pipeline.
+				const { generateAssets } = await import('./generators/asset_generator')
+				const result = await generateAssets(config)
+
+				const duration = Date.now() - startTime
+
+				// Generate post-generation integration instructions.
+				const instructionContext: GenerationContext = {
+					outputDir,
+					platforms: config.platforms,
+					assetTypes: config.assetTypes,
+				}
+				const instructions = generateInstructions(instructionContext)
+
+				// Format and output results based on requested format.
+				if (opts.format === 'json') {
+					const output = {
+						success: result.success,
+						fromHistory: historyId,
+						config: {
+							appName: config.appName,
+							platforms: config.platforms,
+							assetTypes: config.assetTypes,
+						},
+						assets: result.assets.map(asset => ({
+							name: asset.spec.name,
+							path: asset.path,
+							width: asset.spec.width,
+							height: asset.spec.height,
+							platform: asset.spec.platform,
+							type: asset.spec.type,
+							size: asset.buffer.length,
+						})),
+						summary: {
+							totalAssets: result.assets.length,
+							outputDir: result.outputDir,
+							instructionsPath: result.instructionsPath,
+						},
+						instructions: formatInstructionsJson(instructions),
+						errors: result.errors || [],
+						duration,
+					}
+					console.log(JSON.stringify(output, null, 2))
+				} else {
+					if (result.success) {
+						console.log(
+							`\n✓ Successfully generated ${result.assets.length} assets`,
+						)
+						console.log(`  Output directory: ${result.outputDir}`)
+						console.log(`  Duration: ${duration}ms`)
+					} else {
+						console.error(`\n✗ Generation failed`)
+						if (result.errors && result.errors.length > 0) {
+							for (const error of result.errors) {
+								console.error(`  - ${error}`)
+							}
+						}
+						process.exit(1)
+					}
+				}
+				return
+			}
+
 			const outputDir = Option.isSome(opts.output)
 				? resolvePath(opts.output.value)
 				: getOutputDir()
@@ -744,6 +872,254 @@ const updateCmd = Command.make('update', {}, () =>
 	}),
 )
 
+// ─── History Command ────────────────────────────────────────────────────────
+
+/** Limit option for history list command. */
+const historyLimitOpt = Options.integer('limit').pipe(Options.withDefault(10))
+
+/** Entry ID argument for history subcommands. */
+const historyIdArg = Options.text('id').pipe(Options.optional)
+
+/** Name argument for history rename subcommand. */
+const historyNameArg = Options.text('name').pipe(Options.optional)
+
+/**
+ * The 'history' subcommand manages generation history.
+ *
+ * Subcommands:
+ * - (default): List recent history entries
+ * - show <id>: Show details of a specific entry
+ * - delete <id>: Delete an entry
+ * - rename <id> <name>: Rename an entry
+ */
+const historyListCmd = Command.make(
+	'list',
+	{ limit: historyLimitOpt, format: formatOpt },
+	opts =>
+		Effect.promise(async () => {
+			const entries = await listHistory(opts.limit)
+
+			if (opts.format === 'json') {
+				console.log(
+					JSON.stringify(
+						{
+							count: entries.length,
+							entries: entries.map(e => ({
+								id: e.id,
+								createdAt: e.createdAt,
+								name: e.name,
+								summary: getEntrySummary(e),
+								outputDir: e.outputDir,
+								platforms: e.config.platforms,
+								assetTypes: e.config.assetTypes,
+							})),
+						},
+						null,
+						2,
+					),
+				)
+				return
+			}
+
+			if (entries.length === 0) {
+				console.log('\nNo history entries found.')
+				console.log('Generate assets to create your first entry.')
+				return
+			}
+
+			console.log(`\nHistory (${entries.length} entries):\n`)
+			for (const entry of entries) {
+				const date = formatHistoryDate(entry.createdAt)
+				const summary = getEntrySummary(entry)
+				const name = entry.name ? ` "${entry.name}"` : ''
+				console.log(`  ${entry.id}`)
+				console.log(`    ${date} - ${summary}${name}`)
+				console.log()
+			}
+
+			console.log(
+				'Use "appicons generate --from-history <id>" to reuse a config',
+			)
+		}),
+)
+
+const historyShowCmd = Command.make(
+	'show',
+	{ id: historyIdArg, format: formatOpt },
+	opts =>
+		Effect.promise(async () => {
+			if (!Option.isSome(opts.id)) {
+				console.error('Error: Entry ID is required')
+				console.error('Usage: appicons history show --id <id>')
+				process.exit(2)
+			}
+
+			const entry = await getHistoryEntry(opts.id.value)
+
+			if (!entry) {
+				console.error(`Error: History entry "${opts.id.value}" not found`)
+				process.exit(2)
+			}
+
+			if (opts.format === 'json') {
+				console.log(JSON.stringify(entry, null, 2))
+				return
+			}
+
+			console.log(`\nHistory Entry: ${entry.id}`)
+			console.log(`────────────────────────────────────────────`)
+			console.log(`Created: ${formatHistoryDate(entry.createdAt)}`)
+			if (entry.name) {
+				console.log(`Name: ${entry.name}`)
+			}
+			console.log(`Output: ${entry.outputDir}`)
+			console.log()
+			console.log('Configuration:')
+			console.log(`  App Name: ${entry.config.appName}`)
+			console.log(`  Platforms: ${entry.config.platforms.join(', ')}`)
+			console.log(`  Asset Types: ${entry.config.assetTypes.join(', ')}`)
+			console.log(`  Background: ${entry.config.background.type}`)
+			console.log(`  Foreground: ${entry.config.foreground.type}`)
+			if (entry.config.iconScale) {
+				console.log(`  Icon Scale: ${entry.config.iconScale}`)
+			}
+			if (entry.config.splashScale) {
+				console.log(`  Splash Scale: ${entry.config.splashScale}`)
+			}
+			console.log()
+			console.log(`Use "appicons generate --from-history ${entry.id}" to reuse`)
+		}),
+)
+
+const historyDeleteCmd = Command.make(
+	'delete',
+	{ id: historyIdArg, format: formatOpt },
+	opts =>
+		Effect.promise(async () => {
+			if (!Option.isSome(opts.id)) {
+				console.error('Error: Entry ID is required')
+				console.error('Usage: appicons history delete --id <id>')
+				process.exit(2)
+			}
+
+			const success = await deleteHistoryEntry(opts.id.value)
+
+			if (opts.format === 'json') {
+				console.log(JSON.stringify({ success, id: opts.id.value }))
+				return
+			}
+
+			if (success) {
+				console.log(`✓ Deleted history entry: ${opts.id.value}`)
+			} else {
+				console.error(`Error: History entry "${opts.id.value}" not found`)
+				process.exit(2)
+			}
+		}),
+)
+
+const historyRenameCmd = Command.make(
+	'rename',
+	{ id: historyIdArg, name: historyNameArg, format: formatOpt },
+	opts =>
+		Effect.promise(async () => {
+			if (!Option.isSome(opts.id)) {
+				console.error('Error: Entry ID is required')
+				console.error(
+					'Usage: appicons history rename --id <id> --name "My Config"',
+				)
+				process.exit(2)
+			}
+
+			const newName = Option.isSome(opts.name) ? opts.name.value : undefined
+			const success = await renameHistoryEntry(opts.id.value, newName)
+
+			if (opts.format === 'json') {
+				console.log(
+					JSON.stringify({ success, id: opts.id.value, name: newName }),
+				)
+				return
+			}
+
+			if (success) {
+				if (newName) {
+					console.log(`✓ Renamed history entry to: "${newName}"`)
+				} else {
+					console.log(`✓ Cleared name from history entry`)
+				}
+			} else {
+				console.error(`Error: History entry "${opts.id.value}" not found`)
+				process.exit(2)
+			}
+		}),
+)
+
+const historyCmd = Command.make(
+	'history',
+	{ limit: historyLimitOpt, format: formatOpt },
+	opts =>
+		Effect.promise(async () => {
+			// Default behavior: list history
+			const entries = await listHistory(opts.limit)
+
+			if (opts.format === 'json') {
+				console.log(
+					JSON.stringify(
+						{
+							count: entries.length,
+							entries: entries.map(e => ({
+								id: e.id,
+								createdAt: e.createdAt,
+								name: e.name,
+								summary: getEntrySummary(e),
+								outputDir: e.outputDir,
+								platforms: e.config.platforms,
+								assetTypes: e.config.assetTypes,
+							})),
+						},
+						null,
+						2,
+					),
+				)
+				return
+			}
+
+			if (entries.length === 0) {
+				console.log('\nNo history entries found.')
+				console.log('Generate assets to create your first entry.')
+				return
+			}
+
+			console.log(`\nHistory (${entries.length} entries):\n`)
+			for (const entry of entries) {
+				const date = formatHistoryDate(entry.createdAt)
+				const summary = getEntrySummary(entry)
+				const name = entry.name ? ` "${entry.name}"` : ''
+				console.log(`  ${entry.id}`)
+				console.log(`    ${date} - ${summary}${name}`)
+				console.log()
+			}
+
+			console.log('Commands:')
+			console.log('  appicons history show --id <id>     Show entry details')
+			console.log('  appicons history delete --id <id>   Delete an entry')
+			console.log(
+				'  appicons history rename --id <id> --name "Name"   Rename an entry',
+			)
+			console.log()
+			console.log(
+				'Use "appicons generate --from-history <id>" to reuse a config',
+			)
+		}),
+).pipe(
+	Command.withSubcommands([
+		historyListCmd,
+		historyShowCmd,
+		historyDeleteCmd,
+		historyRenameCmd,
+	]),
+)
+
 // ─── Main Command (OpenTUI launcher) ───────────────────────────────────────
 
 /**
@@ -763,6 +1139,7 @@ const command = assets.pipe(
 	Command.withSubcommands([
 		generate,
 		validate,
+		historyCmd,
 		instructionsCmd,
 		listFontsCmd,
 		listPlatformsCmd,

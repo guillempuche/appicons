@@ -20,6 +20,7 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import sharp from 'sharp'
+import toIco from 'to-ico'
 
 import {
 	getAssetsByPlatform,
@@ -33,6 +34,7 @@ import type {
 	GeneratedAsset,
 	GenerationResult,
 } from '../types'
+import { saveToHistory } from '../utils/history'
 import {
 	formatInstructionsText,
 	generateInstructions,
@@ -80,13 +82,15 @@ export async function generateAssets(
 		// Persist generated assets to disk (organized by platform folders).
 		await writeAssetsToDisk(assets, config.outputDir)
 
-		// Generate web manifest if web platform is included
+		// Generate web manifest and favicon.ico if web platform is included
 		if (
 			config.platforms.includes('web') &&
 			config.assetTypes.includes('favicon')
 		) {
 			await generateWebManifest(config, config.outputDir)
 			console.log(`✓ Generated web/site.webmanifest`)
+			await generateFaviconIco(config, config.outputDir)
+			console.log(`✓ Generated web/favicon.ico`)
 		}
 
 		// Generate integration instructions file.
@@ -104,6 +108,16 @@ export async function generateAssets(
 		console.log(`\n✓ Generated ${assets.length} assets`)
 		if (errors.length > 0) {
 			console.log(`✗ Failed ${errors.length} assets`)
+		}
+
+		// Save to history on successful generation
+		if (errors.length === 0) {
+			try {
+				await saveToHistory(config, config.outputDir)
+			} catch (_historyError) {
+				// Don't fail generation if history save fails
+				console.warn('Warning: Failed to save to history')
+			}
 		}
 
 		return {
@@ -235,10 +249,17 @@ async function generateAsset(
 
 	// Step 2: Calculate foreground size based on asset type.
 	// Separate scales for icons vs splash screens (user configurable).
+	// For small favicons (< 64px), use larger scale for visibility.
+	const SMALL_FAVICON_THRESHOLD = 64
+	const SMALL_FAVICON_SCALE = 0.85
+
 	const foregroundScale =
 		spec.type === 'splash'
 			? (config.splashScale ?? 0.25) // Splash: 25% default, range 0.05-1.0
-			: (config.iconScale ?? 0.7) // Icons: 70% default, range 0.1-1.5
+			: spec.type === 'favicon' &&
+					Math.min(width, height) < SMALL_FAVICON_THRESHOLD
+				? Math.max(config.iconScale ?? 0.7, SMALL_FAVICON_SCALE) // Small favicons: 85% for visibility
+				: (config.iconScale ?? 0.7) // Icons: 70% default, range 0.1-1.5
 	const foregroundSize = Math.floor(Math.min(width, height) * foregroundScale)
 
 	const foregroundBuffer = await generateForeground(
@@ -718,6 +739,72 @@ async function generateWebManifest(
 		join(webDir, 'site.webmanifest'),
 		JSON.stringify(manifest, null, 2),
 	)
+}
+
+/**
+ * Generates favicon.ico containing multiple resolutions.
+ *
+ * Creates a multi-resolution ICO file with 16x16, 32x32, and 48x48 images.
+ * Uses higher foreground scale (85%) for small sizes to improve visibility.
+ *
+ * @see https://en.wikipedia.org/wiki/ICO_(file_format)
+ */
+async function generateFaviconIco(
+	config: AssetGeneratorConfig,
+	outputDir: string,
+): Promise<void> {
+	const sizes = [16, 32, 48]
+	const pngBuffers: Buffer[] = []
+
+	// Constants for small favicon scaling
+	const SMALL_FAVICON_THRESHOLD = 64
+	const SMALL_FAVICON_SCALE = 0.85
+
+	for (const size of sizes) {
+		// Use higher scale for small sizes to improve visibility
+		const scale =
+			size < SMALL_FAVICON_THRESHOLD
+				? Math.max(config.iconScale ?? 0.7, SMALL_FAVICON_SCALE)
+				: (config.iconScale ?? 0.7)
+
+		const foregroundSize = Math.floor(size * scale)
+
+		// Generate background at target size
+		const backgroundBuffer = await generateBackground(
+			config.background,
+			size,
+			size,
+		)
+
+		// Generate foreground at scaled size
+		const foregroundBuffer = await generateForeground(
+			config.foreground,
+			foregroundSize,
+			foregroundSize,
+		)
+
+		// Composite foreground centered on background
+		const buffer = await sharp(backgroundBuffer)
+			.composite([
+				{
+					input: foregroundBuffer,
+					top: Math.floor((size - foregroundSize) / 2),
+					left: Math.floor((size - foregroundSize) / 2),
+				},
+			])
+			.png()
+			.toBuffer()
+
+		pngBuffers.push(buffer)
+	}
+
+	// Convert PNG buffers to ICO format
+	const icoBuffer = await toIco(pngBuffers)
+
+	// Write to web/favicon.ico
+	const webDir = join(outputDir, 'web')
+	await mkdir(webDir, { recursive: true })
+	await writeFile(join(webDir, 'favicon.ico'), icoBuffer)
 }
 
 /**

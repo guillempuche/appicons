@@ -13,6 +13,120 @@ A CLI tool that generates **100+ app assets** from a single command. Create app 
 - **PWA compliant**: Maskable and monochrome icons with auto-generated `site.webmanifest`
 - **Google Fonts**: Use any font from fonts.google.com for text-based icons
 
+## Use Cases
+
+- **React Native / Expo apps**: Generate all icons and splash screens, copy to `assets/` folder
+- **Flutter apps**: Generate Android adaptive icons and iOS app icons
+- **Native iOS apps**: Full iOS 18 icon set with dark/tinted/clear variants for Xcode
+- **Native Android apps**: Adaptive icons with monochrome layer for Material You theming
+- **PWA / Web apps**: Favicons, Apple touch icons, and maskable icons with manifest
+- **Prototypes**: Quickly generate placeholder icons with text and colors
+- **CI/CD pipelines**: Automate asset generation with `--format json` for scripting
+
+## Interactive TUI
+
+Launch `appicons` to open the interactive terminal interface:
+
+### Startup Screen (returning users)
+
+```
+┌──────────────────────────────────────────────────┐
+│  APP ASSET GENERATOR                             │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
+│                                                  │
+│  QUICK START                                     │
+│  ────────────────────────────────────────────    │
+│                                                  │
+│  ▶ [N] New configuration                         │
+│                                                  │
+│  Recent:                                         │
+│    [1] Jan 31, 19:15 - ios,android text "A"      │
+│    [2] Jan 30, 14:22 - web svg logo.svg          │
+│    [3] Jan 29, 10:00 - ios,android,web "MyApp"   │
+│                                                  │
+│    [H] Browse all history                        │
+│                                                  │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
+│  ↑↓ Navigate │ Enter Select │ N/H/1-3 Quick     │
+└──────────────────────────────────────────────────┘
+```
+
+### Config Screen
+
+```
+┌──────────────────────────────────────────────────┐
+│  APP ASSET GENERATOR                             │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
+│                                                  │
+│  ▶ App Name         [MyApp             ]         │
+│    Background Type  ● Color  ○ Gradient  ○ Image │
+│    Background Color [#FFFFFF           ] │██│    │
+│    Foreground Type  ● Text  ○ SVG  ○ Image       │
+│    Text             [A                 ]         │
+│    Font Family      [Inter             ]         │
+│    Text Color       [#000000           ] │██│    │
+│    Icon Scale       [━━━━━━━━━●─────────] 70%    │
+│    Splash Scale     [━━━━━●─────────────] 25%    │
+│    Output Path      [                  ]         │
+│                                                  │
+│  💡 Appears in app stores and device screens     │
+│                                                  │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
+│  ↑↓ Navigate │ ←→ Options │ Enter Generate       │
+└──────────────────────────────────────────────────┘
+```
+
+### History Browser
+
+```
+┌──────────────────────────────────────────────────┐
+│  APP ASSET GENERATOR                             │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
+│                                                  │
+│  HISTORY (12 entries)                   [Esc]    │
+│  ────────────────────────────────────────────    │
+│                                                  │
+│  ▶ Jan 31, 19:15  ios,android   text "A"         │
+│    Jan 30, 14:22  web           svg              │
+│    Jan 29, 10:00  all           text "M" "MyApp" │
+│    Jan 28, 16:45  ios           image            │
+│    Jan 27, 09:30  android       text "X"         │
+│    ... showing 1-5 of 12                         │
+│                                                  │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
+│  [Enter] Load │ [n] Rename │ [d] Delete │ [Esc]  │
+└──────────────────────────────────────────────────┘
+```
+
+### Preview Screen (after generation)
+
+```
+┌──────────────────────────────────────────────────┐
+│  APP ASSET GENERATOR                             │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
+│                                                  │
+│  ASSET PREVIEW                      ← Back [Esc] │
+│  ────────────────────────────────────────────    │
+│                                                  │
+│  Generated 96 assets                             │
+│  Output: ./assets/generated_2024-01-31_19-15-30  │
+│                                                  │
+│  IOS (32 assets)                                 │
+│  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐ +26 more    │
+│  │ A  │ │ A  │ │ A  │ │ A  │ │ A  │              │
+│  └────┘ └────┘ └────┘ └────┘ └────┘              │
+│  1024   512    180    120    60                  │
+│                                                  │
+│  ANDROID (28 assets)                             │
+│  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐ +22 more    │
+│  │ A  │ │ A  │ │ A  │ │ A  │ │ A  │              │
+│  └────┘ └────┘ └────┘ └────┘ └────┘              │
+│                                                  │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
+│  Esc Back │ Ctrl+C Exit                          │
+└──────────────────────────────────────────────────┘
+```
+
 ## Examples
 
 Three example outputs are included in [`assets/`](assets/) showcasing different foreground types:
@@ -96,6 +210,7 @@ appicons generate --fg-type image --fg-image ./logo.png \
 - **CLI Mode**: Command-line interface for automation and AI agents with shell completion
 - **JSON Output**: Machine-readable output for programmatic usage
 - **Smart Validation**: Typo detection with suggestions for Google Font names
+- **Settings History**: Auto-saves generation configs for easy reuse (up to 50 entries)
 
 ### Comparison
 
@@ -116,13 +231,12 @@ appicons generate --fg-type image --fg-image ./logo.png \
 appicons
 ```
 
-The TUI will guide you through:
+See [Interactive TUI](#interactive-tui) above for screen mockups. Features:
 
-1. App name
-2. Target platforms (iOS, Android, Web)
-3. Asset types (icons, splash, adaptive, favicons)
-4. Background configuration (color, gradient, image)
-5. Foreground configuration (text with Google Fonts, SVG, image)
+- **Settings History**: Configs auto-save after generation for easy reuse
+- **Live Preview**: Real-time icon preview as you configure
+- **Font Autocomplete**: Search 1,500+ Google Fonts as you type
+- **Rename entries**: Press `n` in history browser to name configs (e.g., "My App v2")
 
 ### Command-Line Mode
 
@@ -134,6 +248,7 @@ appicons [command] [options]
 Commands:
   (no command)      Launch interactive OpenTUI interface (default)
   generate          Generate assets from command-line options
+  history           Manage settings history (list, show, rename, delete)
   validate          Validate configuration without generating
   list-fonts        List available Google Fonts
   list-platforms    Show platform specifications
@@ -183,7 +298,34 @@ appicons generate --dry-run
 
 # JSON output for AI agents
 appicons generate --format json
+
+# Generate from a saved history entry
+appicons generate --from-history <entry-id>
+
+# Override specific options from history
+appicons generate --from-history <entry-id> --platforms ios
 ```
+
+#### History Command
+
+Settings are automatically saved after each successful generation. View and manage your history:
+
+```bash
+# List recent history entries
+appicons history
+appicons history --limit 20
+
+# Show details of a specific entry
+appicons history show --id <entry-id>
+
+# Rename an entry for easy identification
+appicons history rename --id <entry-id> --name "My App v2"
+
+# Delete an entry
+appicons history delete --id <entry-id>
+```
+
+History is stored at `~/.appicons/history.json` (max 50 entries, newest first).
 
 #### Other Commands
 
@@ -315,16 +457,6 @@ assets/<output-folder>/
    - **Display fonts** (Bebas Neue, Anton, Oswald): Bold, attention-grabbing
 
 6. **Google Fonts**: All fonts are loaded from Google Fonts API. Any font from fonts.google.com can be used.
-
-## Use Cases
-
-- **React Native / Expo apps**: Generate all icons and splash screens, copy to `assets/` folder
-- **Flutter apps**: Generate Android adaptive icons and iOS app icons
-- **Native iOS apps**: Full iOS 18 icon set with dark/tinted/clear variants for Xcode
-- **Native Android apps**: Adaptive icons with monochrome layer for Material You theming
-- **PWA / Web apps**: Favicons, Apple touch icons, and maskable icons with manifest
-- **Prototypes**: Quickly generate placeholder icons with text and colors
-- **CI/CD pipelines**: Automate asset generation with `--format json` for scripting
 
 ## Contributing
 

@@ -87,9 +87,10 @@ export function generateInstructions(context: GenerationContext): Instructions {
 		steps.push({
 			step: stepNum++,
 			title: 'Copy web favicon',
-			description: 'Copy favicon for web builds',
-			command: `cp ${outputDir}/web/favicon-32x32.png ../expo/assets/images/favicon.png`,
-			files: [`${outputDir}/web/favicon-*.png`],
+			description:
+				'Copy favicon.ico to public root and PNG favicons for web builds',
+			command: `cp ${outputDir}/web/favicon.ico ../public/ && cp ${outputDir}/web/favicon-*.png ../public/`,
+			files: [`${outputDir}/web/favicon.ico`, `${outputDir}/web/favicon-*.png`],
 		})
 	}
 
@@ -315,6 +316,24 @@ function generateExpoConfigExample(
 	if (platforms.includes('web') && assetTypes.includes('favicon')) {
 		lines.push('// Web favicon (in expo.web)')
 		lines.push("favicon: './assets/images/favicon.png',")
+		lines.push('')
+		lines.push(
+			'// ─── Modern Favicon Setup (HTML head) ────────────────────────',
+		)
+		lines.push(
+			'// Place favicon.ico in your public root (browsers check /favicon.ico automatically)',
+		)
+		lines.push('//')
+		lines.push(
+			'// <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">',
+		)
+		lines.push(
+			'// <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">',
+		)
+		lines.push(
+			'// <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">',
+		)
+		lines.push('// <link rel="manifest" href="/site.webmanifest">')
 		lines.push('')
 	}
 

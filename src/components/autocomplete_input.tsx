@@ -77,7 +77,7 @@ export function AutocompleteInput({
 	/**
 	 * Handle suggestion selection.
 	 */
-	const handleSelectSuggestion = (suggestion: string) => {
+	const _handleSelectSuggestion = (suggestion: string) => {
 		onChange(suggestion)
 		setShowSuggestions(false)
 	}

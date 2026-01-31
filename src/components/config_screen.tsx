@@ -28,7 +28,6 @@ import type {
 	Platform,
 } from '../types'
 import {
-	fontExists,
 	initGoogleFonts,
 	normalizeFontFamily,
 	searchFonts,
@@ -57,7 +56,7 @@ function autocompleteFonts(query: string): string[] {
  */
 function truncate(text: string, maxLen: number): string {
 	if (text.length <= maxLen) return text
-	return text.slice(0, maxLen - 3) + '...'
+	return `${text.slice(0, maxLen - 3)}...`
 }
 
 // ─── Layout Constants ──────────────────────────────────────────────────────
@@ -309,6 +308,10 @@ interface ConfigScreenProps {
 	formState: ConfigFormState
 	onFormStateChange: (state: ConfigFormState) => void
 	onComplete: (config: AssetGeneratorConfig) => void
+	/** Optional callback to navigate back (only available when history exists). */
+	onBack?: (() => void) | undefined
+	/** Optional callback to open history screen (only available when history exists). */
+	onHistory?: (() => void) | undefined
 }
 
 /** Default values for each field (used for ESC reset). */
@@ -340,6 +343,8 @@ export function ConfigScreen({
 	formState,
 	onFormStateChange,
 	onComplete,
+	onBack,
+	onHistory,
 }: ConfigScreenProps) {
 	// ─── State ─────────────────────────────────────────────────────────────────
 
@@ -361,7 +366,7 @@ export function ConfigScreen({
 
 	// Font autocomplete suggestions and loading state.
 	const [fontSuggestions, setFontSuggestions] = useState<string[]>([])
-	const [fontsLoaded, setFontsLoaded] = useState(false)
+	const [_fontsLoaded, setFontsLoaded] = useState(false)
 
 	// Terminal size for responsive layout decisions.
 	const [terminalWidth, setTerminalWidth] = useState(
@@ -612,8 +617,21 @@ export function ConfigScreen({
 		} else if (key.name === 'right') {
 			if (currentField?.type === 'radio') changeRadio('right')
 			else if (currentField?.type === 'scale') changeScale('right')
-		} else if (key.name === 'escape') resetCurrentField()
-		else if (key.name === 'return') handleSubmit()
+		} else if (key.name === 'escape') {
+			// If we can go back (history exists), escape navigates back
+			// Otherwise, escape resets the current field
+			if (onBack) {
+				onBack()
+			} else {
+				resetCurrentField()
+			}
+		} else if (key.name === 'return') handleSubmit()
+		else if (key.sequence === 'h' && onHistory) {
+			// 'h' opens history screen (only when not in an input field)
+			if (currentField?.type !== 'input') {
+				onHistory()
+			}
+		}
 	})
 
 	// ─── Form Submission ───────────────────────────────────────────────────────
@@ -793,23 +811,21 @@ export function ConfigScreen({
 				{/* Contextual Tip or Font Suggestions */}
 				<box marginTop={2} flexDirection='column' gap={0}>
 					{currentField?.id === 'fgFont' ? (
-						<>
-							{fontSuggestions.length > 0 ? (
-								<>
-									<text fg={colors.tip}>
-										💡 Matches ({fontSuggestions.length}):
-									</text>
-									<text fg={colors.tip}>
-										{'   '}
-										{truncate(fontSuggestions.join(', '), terminalWidth - 5)}
-									</text>
-								</>
-							) : fgFont.length > 0 ? (
-								<text fg={colors.textDim}>💡 No matching fonts found</text>
-							) : (
-								<text fg={colors.tip}>💡 {currentField?.tip}</text>
-							)}
-						</>
+						fontSuggestions.length > 0 ? (
+							<>
+								<text fg={colors.tip}>
+									💡 Matches ({fontSuggestions.length}):
+								</text>
+								<text fg={colors.tip}>
+									{'   '}
+									{truncate(fontSuggestions.join(', '), terminalWidth - 5)}
+								</text>
+							</>
+						) : fgFont.length > 0 ? (
+							<text fg={colors.textDim}>💡 No matching fonts found</text>
+						) : (
+							<text fg={colors.tip}>💡 {currentField?.tip}</text>
+						)
 					) : currentField?.id === 'iconScale' ? (
 						<>
 							<text fg={colors.tip}>💡 {currentField?.tip}</text>
