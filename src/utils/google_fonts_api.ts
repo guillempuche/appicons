@@ -115,12 +115,39 @@ export async function suggestSimilarFonts(
 /**
  * Check if a font exists in Google Fonts.
  *
+ * Uses the CSS endpoint which doesn't require an API key.
+ * Falls back to the fonts list if available.
+ *
  * @param fontName - Font family name to check
  * @returns true if font exists, false otherwise
  */
 export async function isValidGoogleFont(fontName: string): Promise<boolean> {
-	const allFonts = await fetchAllGoogleFonts()
-	return allFonts.some(font => font.toLowerCase() === fontName.toLowerCase())
+	// First try the cached font list if available
+	if (cachedFonts && cachedFonts.length > 0) {
+		return cachedFonts.some(
+			font => font.toLowerCase() === fontName.toLowerCase(),
+		)
+	}
+
+	// Validate by checking if the CSS endpoint returns 200
+	// This doesn't require an API key
+	try {
+		const encodedFamily = fontName.replace(/ /g, '+')
+		const cssUrl = `https://fonts.googleapis.com/css2?family=${encodedFamily}:wght@400&display=swap`
+
+		const response = await fetch(cssUrl, {
+			method: 'HEAD',
+			headers: {
+				'User-Agent':
+					'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/534.59.8',
+			},
+		})
+
+		return response.ok
+	} catch {
+		// On network error, assume valid and let loading fail later if needed
+		return true
+	}
 }
 
 /**

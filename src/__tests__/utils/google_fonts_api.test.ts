@@ -173,12 +173,10 @@ describe('GoogleFontsApi', () => {
 		})
 
 		it('should return false for non-existing fonts', async () => {
-			// GIVEN a mock Google Fonts API response
-			const mockResponse = createMockGoogleFontsApiResponse()
+			// GIVEN a mock that returns 400 for non-existent fonts (CSS endpoint validation)
 			const mockFetch = vi.fn().mockResolvedValue({
-				ok: true,
-				status: 200,
-				json: vi.fn().mockResolvedValue(mockResponse),
+				ok: false,
+				status: 400,
 			})
 			vi.stubGlobal('fetch', mockFetch)
 
