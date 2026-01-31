@@ -13,34 +13,46 @@ A CLI tool that generates **100+ app assets** from a single command. Create app 
 - **PWA compliant**: Maskable and monochrome icons with auto-generated `site.webmanifest`
 - **Google Fonts**: Use any font from fonts.google.com for text-based icons
 
-## Quick Start
+## Examples
+
+Three example outputs are included in [`assets/`](assets/) showcasing different foreground types:
+
+<table>
+<tr>
+<td align="center"><strong>Text</strong></td>
+<td align="center"><strong>SVG Icon</strong></td>
+<td align="center"><strong>Image</strong></td>
+</tr>
+<tr>
+<td align="center"><img src="assets/example_text/ios/icon-1024.png" width="180" alt="Text example"></td>
+<td align="center"><img src="assets/example_svg/ios/icon-1024.png" width="180" alt="SVG example"></td>
+<td align="center"><img src="assets/example_image/ios/icon-1024.png" width="180" alt="Image example"></td>
+</tr>
+<tr>
+<td align="center"><a href="assets/example_text/">example_text/</a></td>
+<td align="center"><a href="assets/example_svg/">example_svg/</a></td>
+<td align="center"><a href="assets/example_image/">example_image/</a></td>
+</tr>
+</table>
+
+### Text + Solid Color
 
 ```bash
-# Install
-curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/install.sh | bash
-
-# Generate icons with letter "A" on indigo background
-appicons generate --fg-text "A" --fg-color "#FFFFFF" --bg-color "#6366F1"
-
-# Or launch interactive mode
-appicons
+appicons generate --fg-text "N" --fg-color "#FFFFFF" --bg-color "#FF6B6B"
 ```
 
-## Installation
+### SVG Icon + Gradient
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/install.sh | bash
+appicons generate --fg-type svg --fg-svg ./icon.svg \
+  --bg-type gradient --bg-gradient-colors "#667eea,#764ba2"
 ```
 
-This installs:
-- Bun runtime (if not already installed)
-- appicons binary to `~/.appicons`
-- Symlink to `/usr/local/bin/appicons`
-
-### Uninstall
+### Image + Gradient
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/uninstall.sh | bash
+appicons generate --fg-type image --fg-image ./logo.png \
+  --bg-type gradient --bg-gradient-colors "#E0E7FF,#C7D2FE"
 ```
 
 ## Features
@@ -182,46 +194,34 @@ appicons completion >> ~/.bashrc  # bash
 appicons completion >> ~/.zshrc   # zsh
 ```
 
-## Examples
-
-Three example outputs are included in [`assets/`](assets/) showcasing different foreground types:
-
-<table>
-<tr>
-<td align="center"><strong>Text</strong></td>
-<td align="center"><strong>SVG Icon</strong></td>
-<td align="center"><strong>Image</strong></td>
-</tr>
-<tr>
-<td align="center"><img src="assets/example_text/ios/icon-1024.png" width="180" alt="Text example"></td>
-<td align="center"><img src="assets/example_svg/ios/icon-1024.png" width="180" alt="SVG example"></td>
-<td align="center"><img src="assets/example_image/ios/icon-1024.png" width="180" alt="Image example"></td>
-</tr>
-<tr>
-<td align="center"><a href="assets/example_text/">example_text/</a></td>
-<td align="center"><a href="assets/example_svg/">example_svg/</a></td>
-<td align="center"><a href="assets/example_image/">example_image/</a></td>
-</tr>
-</table>
-
-### Text + Solid Color
+## Quick Start
 
 ```bash
-appicons generate --fg-text "N" --fg-color "#FFFFFF" --bg-color "#FF6B6B"
+# Install
+curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/install.sh | bash
+
+# Generate icons with letter "A" on indigo background
+appicons generate --fg-text "A" --fg-color "#FFFFFF" --bg-color "#6366F1"
+
+# Or launch interactive mode
+appicons
 ```
 
-### SVG Icon + Gradient
+## Installation
 
 ```bash
-appicons generate --fg-type svg --fg-svg ./icon.svg \
-  --bg-type gradient --bg-gradient-colors "#667eea,#764ba2"
+curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/install.sh | bash
 ```
 
-### Image + Gradient
+This installs:
+- Bun runtime (if not already installed)
+- appicons binary to `~/.appicons`
+- Symlink to `/usr/local/bin/appicons`
+
+### Uninstall
 
 ```bash
-appicons generate --fg-type image --fg-image ./logo.png \
-  --bg-type gradient --bg-gradient-colors "#E0E7FF,#C7D2FE"
+curl -fsSL https://raw.githubusercontent.com/guillempuche/appicons/main/scripts/uninstall.sh | bash
 ```
 
 ## Output Structure
