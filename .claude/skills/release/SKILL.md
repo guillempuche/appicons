@@ -18,7 +18,9 @@ The `--ci` flag runs non-interactively (no prompts). This command:
 2. Builds the project
 3. Bumps version (CalVer: `YYYY.MM.PATCH`)
 4. Creates git tag and commit
-5. Creates GitHub release (triggers binary builds)
+5. Creates **draft** GitHub release (triggers binary builds)
+
+**Important:** The release is created as a draft. GitHub Actions will build binaries for all platforms and then publish the release. Wait ~2-3 minutes for binaries to be available.
 
 ## Version Format
 
@@ -43,6 +45,7 @@ On tag push (`v*`), the release workflow automatically:
    - darwin-arm64 (Apple Silicon Mac)
    - darwin-x64 (Intel Mac)
    - linux-x64 (Linux)
+   - linux-arm64 (Linux ARM)
    - win32-x64 (Windows)
 
 2. **Packages each platform:**
@@ -50,9 +53,9 @@ On tag push (`v*`), the release workflow automatically:
    - Sharp native modules
    - ~8MB compressed per platform
 
-3. **Creates GitHub Release:**
-   - Uploads all platform archives
-   - Auto-generates release notes
+3. **Publishes GitHub Release:**
+   - Uploads all platform archives to the draft release
+   - Publishes the release (removes draft status)
 
 ## Manual Steps After Release
 
