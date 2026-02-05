@@ -36,9 +36,25 @@ main() {
         found=true
     fi
 
-    # Remove installation directory
+    # Remove installation directory but preserve user data
     if [[ -d "$INSTALL_DIR" ]]; then
         info "Removing installation directory: $INSTALL_DIR"
+
+        # Ask user about history.json
+        if [[ -f "$INSTALL_DIR/history.json" ]]; then
+            echo ""
+            echo -e "  ${YELLOW}You have saved configuration history.${NC}"
+            echo -n "  Delete history? [y/N] "
+            read -r answer
+            if [[ "$answer" =~ ^[Yy]$ ]]; then
+                info "History will be deleted"
+            else
+                local history_dest="$HOME/.appicons_history_backup.json"
+                cp "$INSTALL_DIR/history.json" "$history_dest"
+                info "Backed up history to: $history_dest"
+            fi
+        fi
+
         rm -rf "$INSTALL_DIR"
         found=true
     fi
@@ -46,6 +62,11 @@ main() {
     echo ""
     if $found; then
         info "appicons has been uninstalled successfully."
+        if [[ -f "$HOME/.appicons_history_backup.json" ]]; then
+            echo ""
+            echo "  Your history was saved to: $HOME/.appicons_history_backup.json"
+            echo "  It will be restored automatically if you reinstall."
+        fi
     else
         warn "appicons was not found on this system."
     fi

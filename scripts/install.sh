@@ -160,6 +160,18 @@ download_release() {
         error "Downloaded archive is corrupted"
     fi
 
+    # Preserve user data (history) across updates
+    local history_backup=""
+    if [[ -f "$INSTALL_DIR/history.json" ]]; then
+        history_backup=$(mktemp)
+        cp "$INSTALL_DIR/history.json" "$history_backup"
+        info "Backed up history.json"
+    elif [[ -f "$HOME/.appicons_history_backup.json" ]]; then
+        # Restore from uninstall backup if available
+        history_backup="$HOME/.appicons_history_backup.json"
+        info "Found history backup from previous uninstall"
+    fi
+
     # Remove existing installation
     if [[ -d "$INSTALL_DIR" ]]; then
         info "Removing existing installation..."
@@ -169,6 +181,19 @@ download_release() {
     # Create install directory and extract
     mkdir -p "$INSTALL_DIR"
     tar -xzf "$tmp_dir/$archive_name" -C "$INSTALL_DIR"
+
+    # Restore user data
+    if [[ -n "$history_backup" ]] && [[ -f "$history_backup" ]]; then
+        cp "$history_backup" "$INSTALL_DIR/history.json"
+        # Clean up temp backup (but not if it's the uninstall backup path itself,
+        # which we handle separately)
+        if [[ "$history_backup" == "$HOME/.appicons_history_backup.json" ]]; then
+            rm -f "$HOME/.appicons_history_backup.json"
+        else
+            rm -f "$history_backup"
+        fi
+        info "Restored history.json"
+    fi
 
     # Verify extraction
     if [[ ! -f "$INSTALL_DIR/appicons.js" ]]; then
