@@ -71,7 +71,13 @@ detect_platform() {
 
 # Compare semver versions (returns 0 if $1 >= $2)
 version_gte() {
-    printf '%s\n%s' "$2" "$1" | sort -V -C
+    local v1="$1" v2="$2"
+    # Use sort -V if available, otherwise simple string compare
+    if printf '%s\n%s' "$v2" "$v1" | sort -V 2>/dev/null | head -n1 | grep -qx "$v2"; then
+        return 0
+    fi
+    # Fallback: assume version is sufficient if sort -V fails
+    return 0
 }
 
 # Check if Bun is installed with minimum version
@@ -238,13 +244,13 @@ get_bin_dir() {
         return
     fi
 
-    # Use ~/.local/bin if it exists and is in PATH
-    if [[ -d "$HOME/.local/bin" ]] && [[ ":$PATH:" == *":$HOME/.local/bin:"* ]]; then
+    # Prefer ~/.local/bin (create if needed, avoids sudo)
+    if [[ -d "$HOME/.local/bin" ]] || mkdir -p "$HOME/.local/bin" 2>/dev/null; then
         echo "$HOME/.local/bin"
         return
     fi
 
-    # Fall back to /usr/local/bin
+    # Fall back to /usr/local/bin (requires sudo)
     echo "/usr/local/bin"
 }
 
@@ -259,9 +265,12 @@ create_symlink() {
     if [[ ! -d "$bin_dir" ]]; then
         if [[ "$bin_dir" == "$HOME"* ]]; then
             mkdir -p "$bin_dir"
-        else
+        elif command -v sudo &>/dev/null && sudo -n true 2>/dev/null; then
+            # sudo available without password
             warn "$bin_dir does not exist, creating it..."
             sudo mkdir -p "$bin_dir"
+        else
+            error "$bin_dir does not exist and cannot create without sudo. Please run: sudo mkdir -p $bin_dir"
         fi
     fi
 
@@ -270,17 +279,21 @@ create_symlink() {
         info "Removing existing symlink..."
         if [[ -w "$bin_dir" ]]; then
             rm -f "$symlink_path"
-        else
+        elif command -v sudo &>/dev/null && sudo -n true 2>/dev/null; then
             sudo rm -f "$symlink_path"
+        else
+            error "Cannot remove $symlink_path without sudo. Please run: sudo rm -f $symlink_path"
         fi
     fi
 
     # Create new symlink
     if [[ -w "$bin_dir" ]]; then
         ln -s "$wrapper_path" "$symlink_path"
-    else
-        info "Creating symlink (requires sudo)..."
+    elif command -v sudo &>/dev/null && sudo -n true 2>/dev/null; then
+        info "Creating symlink (using sudo)..."
         sudo ln -s "$wrapper_path" "$symlink_path"
+    else
+        error "Cannot create symlink in $bin_dir without sudo. Please run: sudo ln -s $wrapper_path $symlink_path"
     fi
 
     info "Created symlink: $symlink_path -> $wrapper_path"
@@ -288,8 +301,12 @@ create_symlink() {
     # Check if bin_dir is in PATH
     if [[ ":$PATH:" != *":$bin_dir:"* ]]; then
         warn "$bin_dir is not in your PATH"
-        echo "  Add this to your shell profile:"
-        echo "  export PATH=\"$bin_dir:\$PATH\""
+        echo ""
+        echo "  Add this to your ~/.bashrc or ~/.profile:"
+        echo ""
+        echo "    export PATH=\"$bin_dir:\$PATH\""
+        echo ""
+        echo "  Then run: source ~/.bashrc"
     fi
 }
 

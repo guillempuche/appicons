@@ -11,7 +11,8 @@
 	},
 	"github": {
 		"release": true,
-		"releaseName": "v${version}"
+		"releaseName": "v${version}",
+		"draft": true
 	},
 	"hooks": {
 		"before:init": ["bun run typecheck", "bun run lint:check"]
