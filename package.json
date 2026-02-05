@@ -1,6 +1,6 @@
 {
 	"name": "appicons",
-	"version": "2026.2.0",
+	"version": "2026.2.1",
 	"description": "Generate app icons, splash screens, and adaptive icons for iOS, Android, and Web. CLI and interactive TUI with Google Fonts support.",
 	"repository": "guillempuche/appicons.git",
 	"type": "module",
