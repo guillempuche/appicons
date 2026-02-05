@@ -79,15 +79,14 @@ export function App() {
 
 	// Check for history on mount to determine initial screen
 	useEffect(() => {
+		async function checkHistoryAndNavigate() {
+			const historyExists = await hasHistory()
+			setUserHasHistory(historyExists)
+			// First-time users go directly to config, returning users see startup
+			setScreen(historyExists ? 'startup' : 'config')
+		}
 		checkHistoryAndNavigate()
-	}, [checkHistoryAndNavigate])
-
-	async function checkHistoryAndNavigate() {
-		const historyExists = await hasHistory()
-		setUserHasHistory(historyExists)
-		// First-time users go directly to config, returning users see startup
-		setScreen(historyExists ? 'startup' : 'config')
-	}
+	}, [])
 
 	/** Handle starting a new configuration from startup screen. */
 	const handleNewConfig = () => {

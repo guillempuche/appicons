@@ -53,20 +53,19 @@ export function StartupScreen({
 
 	// Load recent history entries on mount
 	useEffect(() => {
-		loadRecentEntries()
-	}, [loadRecentEntries])
-
-	async function loadRecentEntries() {
-		setIsLoading(true)
-		try {
-			const entries = await listHistory(3)
-			setRecentEntries(entries)
-		} catch (error) {
-			console.error('Failed to load history:', error)
-		} finally {
-			setIsLoading(false)
+		async function loadRecentEntries() {
+			setIsLoading(true)
+			try {
+				const entries = await listHistory(3)
+				setRecentEntries(entries)
+			} catch (error) {
+				console.error('Failed to load history:', error)
+			} finally {
+				setIsLoading(false)
+			}
 		}
-	}
+		loadRecentEntries()
+	}, [])
 
 	// Calculate total selectable items:
 	// [N] New config + recent entries + [H] Browse history

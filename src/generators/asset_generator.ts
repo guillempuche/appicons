@@ -93,6 +93,31 @@ export async function generateAssets(
 			console.log(`✓ Generated web/favicon.ico`)
 		}
 
+		// Generate iOS Contents.json if iOS platform with icons is included
+		if (
+			config.platforms.includes('ios') &&
+			config.assetTypes.includes('icon')
+		) {
+			await generateContentsJson(config, config.outputDir)
+			console.log(`✓ Generated ios/AppIcon.appiconset/Contents.json`)
+		}
+
+		// Generate Android adaptive icon XML files if Android with adaptive is included
+		if (
+			config.platforms.includes('android') &&
+			config.assetTypes.includes('adaptive')
+		) {
+			await generateAdaptiveIconXml(config, config.outputDir)
+			console.log(`✓ Generated android/mipmap-anydpi-v26/ic_launcher.xml`)
+			console.log(`✓ Generated android/mipmap-anydpi-v26/ic_launcher_round.xml`)
+
+			// Generate colors.xml only for solid color backgrounds
+			if (config.background.type === 'color' && config.background.color) {
+				await generateColorsXml(config, config.outputDir)
+				console.log(`✓ Generated android/values/colors.xml`)
+			}
+		}
+
 		// Generate integration instructions file.
 		const instructions = generateInstructions({
 			outputDir: config.outputDir,
@@ -230,6 +255,20 @@ async function generateAsset(
 		return generateClearIcon(config, spec)
 	}
 
+	// tvOS layered icons: foreground layers need transparent background
+	if (spec.platform === 'tvos' && spec.name.includes('front')) {
+		return generateTvOSForegroundLayer(config, spec)
+	}
+
+	// visionOS layered icons: foreground/back layers
+	if (spec.platform === 'visionos' && spec.name.includes('front')) {
+		return generateVisionOSForegroundLayer(config, spec)
+	}
+
+	if (spec.platform === 'visionos' && spec.name.includes('back')) {
+		return generateVisionOSBackgroundLayer(config, spec)
+	}
+
 	// Step 1: Generate the background layer at full asset dimensions.
 	// For dark mode, auto-compute a dark background from the original.
 	let backgroundBuffer: Buffer
@@ -247,14 +286,28 @@ async function generateAsset(
 		)
 	}
 
-	// Step 2: Calculate foreground size based on asset type.
-	// Separate scales for icons, splash screens, and favicons (user configurable).
-	const foregroundScale =
-		spec.type === 'splash'
-			? (config.splashScale ?? 0.25) // Splash: 25% default, range 0.05-1.0
-			: spec.type === 'favicon'
-				? (config.faviconScale ?? 0.85) // Favicons: 85% default, range 0.5-1.0
-				: (config.iconScale ?? 0.7) // Icons: 70% default, range 0.1-1.5
+	// Step 2: Calculate foreground size based on asset type and platform.
+	// Separate scales for icons, splash screens, favicons, and store graphics (user configurable).
+	let foregroundScale: number
+	if (spec.type === 'splash') {
+		foregroundScale = config.splashScale ?? 0.25 // Splash: 25% default
+	} else if (spec.type === 'favicon') {
+		foregroundScale = config.faviconScale ?? 0.85 // Favicons: 85% default
+	} else if (spec.type === 'store') {
+		foregroundScale = config.storeScale ?? 0.5 // Store: 50% default
+	} else if (spec.platform === 'watchos' || spec.platform === 'visionos') {
+		// Circular icons need to stay within 80% safe zone
+		const maxSafeScale = 0.8
+		const userScale = config.iconScale ?? 0.7
+		foregroundScale = Math.min(userScale, maxSafeScale)
+	} else if (spec.platform === 'tvos') {
+		// tvOS uses 80% safe zone for layered icons
+		const maxSafeScale = 0.8
+		const userScale = config.iconScale ?? 0.7
+		foregroundScale = Math.min(userScale, maxSafeScale)
+	} else {
+		foregroundScale = config.iconScale ?? 0.7 // Icons: 70% default
+	}
 	const foregroundSize = Math.floor(Math.min(width, height) * foregroundScale)
 
 	const foregroundBuffer = await generateForeground(
@@ -618,6 +671,126 @@ async function generateAdaptiveIconLayer(
 	}
 }
 
+// ─── tvOS and visionOS Layer Generators ────────────────────────────────────
+
+/**
+ * Generates tvOS foreground layer (transparent with icon).
+ * Used for tvOS layered icon stack parallax effect.
+ */
+async function generateTvOSForegroundLayer(
+	config: AssetGeneratorConfig,
+	spec: AssetSpec,
+): Promise<GeneratedAsset> {
+	const { width, height } = spec
+
+	// tvOS safe zone is 80% of canvas
+	const maxSafeScale = 0.8
+	const userScale = config.iconScale ?? 0.7
+	const safeScale = Math.min(userScale, maxSafeScale)
+	const safeSize = Math.floor(Math.min(width, height) * safeScale)
+
+	const foregroundBuffer = await generateForeground(
+		config.foreground,
+		safeSize,
+		safeSize,
+	)
+
+	// Create transparent canvas and center the icon
+	const buffer = await sharp({
+		create: {
+			width,
+			height,
+			channels: 4,
+			background: { r: 0, g: 0, b: 0, alpha: 0 },
+		},
+	})
+		.composite([
+			{
+				input: foregroundBuffer,
+				top: Math.floor((height - safeSize) / 2),
+				left: Math.floor((width - safeSize) / 2),
+			},
+		])
+		.png()
+		.toBuffer()
+
+	return {
+		spec,
+		buffer,
+		path: join(config.outputDir, spec.name),
+	}
+}
+
+/**
+ * Generates visionOS foreground layer (transparent with icon).
+ * Used for visionOS 3D layered icon effect.
+ */
+async function generateVisionOSForegroundLayer(
+	config: AssetGeneratorConfig,
+	spec: AssetSpec,
+): Promise<GeneratedAsset> {
+	const { width, height } = spec
+
+	// visionOS circular safe zone is 80% of canvas
+	const maxSafeScale = 0.8
+	const userScale = config.iconScale ?? 0.7
+	const safeScale = Math.min(userScale, maxSafeScale)
+	const safeSize = Math.floor(Math.min(width, height) * safeScale)
+
+	const foregroundBuffer = await generateForeground(
+		config.foreground,
+		safeSize,
+		safeSize,
+	)
+
+	// Create transparent canvas and center the icon
+	const buffer = await sharp({
+		create: {
+			width,
+			height,
+			channels: 4,
+			background: { r: 0, g: 0, b: 0, alpha: 0 },
+		},
+	})
+		.composite([
+			{
+				input: foregroundBuffer,
+				top: Math.floor((height - safeSize) / 2),
+				left: Math.floor((width - safeSize) / 2),
+			},
+		])
+		.png()
+		.toBuffer()
+
+	return {
+		spec,
+		buffer,
+		path: join(config.outputDir, spec.name),
+	}
+}
+
+/**
+ * Generates visionOS background layer (full background).
+ * Used for visionOS 3D layered icon effect.
+ */
+async function generateVisionOSBackgroundLayer(
+	config: AssetGeneratorConfig,
+	spec: AssetSpec,
+): Promise<GeneratedAsset> {
+	const { width, height } = spec
+
+	// Generate full background (fills entire canvas)
+	const buffer = await generateBackground(config.background, width, height)
+
+	return {
+		spec,
+		buffer,
+		path: join(config.outputDir, spec.name),
+	}
+}
+
+// ─── File System Operations ────────────────────────────────────────────────
+
 /**
  * Persists all generated assets to the filesystem.
  *
@@ -793,6 +966,228 @@ async function generateFaviconIco(
 	await mkdir(webDir, { recursive: true })
 	await writeFile(join(webDir, 'favicon.ico'), icoBuffer)
 }
+
+// ─── iOS Contents.json Generation ──────────────────────────────────────────
+
+/**
+ * iOS Contents.json structure for Xcode asset catalog.
+ */
+interface ContentsJsonImage {
+	filename: string
+	idiom: 'iphone' | 'ipad' | 'universal' | 'ios-marketing'
+	scale: '1x' | '2x' | '3x'
+	size: string
+	appearances?: Array<{ appearance: string; value: string }>
+}
+
+interface ContentsJson {
+	images: ContentsJsonImage[]
+	info: { author: string; version: number }
+}
+
+/**
+ * Generates iOS Contents.json for Xcode asset catalog.
+ *
+ * Creates a Contents.json file that Xcode uses to understand the icon set.
+ * Includes entries for standard icons, dark variants, and tinted variants.
+ */
+async function generateContentsJson(
+	_config: AssetGeneratorConfig,
+	outputDir: string,
+): Promise<void> {
+	// Define iOS icon sizes with their idioms
+	// Some sizes need entries for both iPhone and iPad
+	const iconSizes: Array<{
+		size: string
+		scale: '1x' | '2x' | '3x'
+		idiom: 'iphone' | 'ipad' | 'universal' | 'ios-marketing'
+		filename: string
+	}> = [
+		// 20pt - iPhone/iPad Notification
+		{ size: '20x20', scale: '1x', idiom: 'ipad', filename: 'icon-20.png' },
+		{
+			size: '20x20',
+			scale: '2x',
+			idiom: 'iphone',
+			filename: 'icon-20@2x.png',
+		},
+		{ size: '20x20', scale: '2x', idiom: 'ipad', filename: 'icon-20@2x.png' },
+		{
+			size: '20x20',
+			scale: '3x',
+			idiom: 'iphone',
+			filename: 'icon-20@3x.png',
+		},
+		// 29pt - iPhone/iPad Settings
+		{ size: '29x29', scale: '1x', idiom: 'ipad', filename: 'icon-29.png' },
+		{
+			size: '29x29',
+			scale: '2x',
+			idiom: 'iphone',
+			filename: 'icon-29@2x.png',
+		},
+		{ size: '29x29', scale: '2x', idiom: 'ipad', filename: 'icon-29@2x.png' },
+		{
+			size: '29x29',
+			scale: '3x',
+			idiom: 'iphone',
+			filename: 'icon-29@3x.png',
+		},
+		// 40pt - iPhone/iPad Spotlight
+		{ size: '40x40', scale: '1x', idiom: 'ipad', filename: 'icon-40.png' },
+		{
+			size: '40x40',
+			scale: '2x',
+			idiom: 'iphone',
+			filename: 'icon-40@2x.png',
+		},
+		{ size: '40x40', scale: '2x', idiom: 'ipad', filename: 'icon-40@2x.png' },
+		{
+			size: '40x40',
+			scale: '3x',
+			idiom: 'iphone',
+			filename: 'icon-40@3x.png',
+		},
+		// 60pt - iPhone App Icon
+		{
+			size: '60x60',
+			scale: '2x',
+			idiom: 'iphone',
+			filename: 'icon-60@2x.png',
+		},
+		{
+			size: '60x60',
+			scale: '3x',
+			idiom: 'iphone',
+			filename: 'icon-60@3x.png',
+		},
+		// 76pt - iPad App Icon
+		{ size: '76x76', scale: '1x', idiom: 'ipad', filename: 'icon-76.png' },
+		{ size: '76x76', scale: '2x', idiom: 'ipad', filename: 'icon-76@2x.png' },
+		// 83.5pt - iPad Pro
+		{
+			size: '83.5x83.5',
+			scale: '2x',
+			idiom: 'ipad',
+			filename: 'icon-83.5@2x.png',
+		},
+		// 1024pt - App Store
+		{
+			size: '1024x1024',
+			scale: '1x',
+			idiom: 'ios-marketing',
+			filename: 'icon-1024.png',
+		},
+	]
+
+	const images: ContentsJsonImage[] = []
+
+	// Add standard light mode icons
+	for (const icon of iconSizes) {
+		images.push({
+			filename: icon.filename,
+			idiom: icon.idiom,
+			scale: icon.scale,
+			size: icon.size,
+		})
+	}
+
+	// Add dark appearance variants (iOS 18+)
+	const darkSizes = ['60x60', '76x76', '83.5x83.5', '1024x1024']
+	for (const icon of iconSizes) {
+		if (darkSizes.includes(icon.size)) {
+			images.push({
+				filename: `dark/${icon.filename}`,
+				idiom: icon.idiom,
+				scale: icon.scale,
+				size: icon.size,
+				appearances: [{ appearance: 'luminosity', value: 'dark' }],
+			})
+		}
+	}
+
+	// Add tinted appearance variants (iOS 18+)
+	for (const icon of iconSizes) {
+		if (darkSizes.includes(icon.size)) {
+			images.push({
+				filename: `tinted/${icon.filename}`,
+				idiom: icon.idiom,
+				scale: icon.scale,
+				size: icon.size,
+				appearances: [{ appearance: 'luminosity', value: 'tinted' }],
+			})
+		}
+	}
+
+	const contentsJson: ContentsJson = {
+		images,
+		info: { author: 'appicons', version: 1 },
+	}
+
+	// Write to ios/AppIcon.appiconset/Contents.json
+	const appiconsetDir = join(outputDir, 'ios', 'AppIcon.appiconset')
+	await mkdir(appiconsetDir, { recursive: true })
+	await writeFile(
+		join(appiconsetDir, 'Contents.json'),
+		JSON.stringify(contentsJson, null, 2),
+	)
+}
+
+// ─── Android XML Generation ────────────────────────────────────────────────
+
+/**
+ * Generates Android adaptive icon XML files.
+ *
+ * Creates ic_launcher.xml and ic_launcher_round.xml that define
+ * the adaptive icon structure with background, foreground, and monochrome layers.
+ */
+async function generateAdaptiveIconXml(
+	_config: AssetGeneratorConfig,
+	outputDir: string,
+): Promise<void> {
+	const xmlContent = `<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@mipmap/ic_launcher_background"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+    <monochrome android:drawable="@mipmap/ic_launcher_monochrome"/>
+</adaptive-icon>
+`
+
+	// Write to android/mipmap-anydpi-v26/
+	const xmlDir = join(outputDir, 'android', 'mipmap-anydpi-v26')
+	await mkdir(xmlDir, { recursive: true })
+	await writeFile(join(xmlDir, 'ic_launcher.xml'), xmlContent)
+	await writeFile(join(xmlDir, 'ic_launcher_round.xml'), xmlContent)
+}
+
+/**
+ * Generates Android colors.xml for solid color backgrounds.
+ *
+ * Creates a colors.xml file that can be used by Android adaptive icons
+ * when a solid color background is preferred over an image.
+ */
+async function generateColorsXml(
+	config: AssetGeneratorConfig,
+	outputDir: string,
+): Promise<void> {
+	if (config.background.type !== 'color' || !config.background.color) {
+		return
+	}
+
+	const bgColor = config.background.color.color.toUpperCase()
+	const xmlContent = `<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">${bgColor}</color>
+</resources>
+`
+
+	// Write to android/values/
+	const valuesDir = join(outputDir, 'android', 'values')
+	await mkdir(valuesDir, { recursive: true })
+	await writeFile(join(valuesDir, 'colors.xml'), xmlContent)
+}
+
+// ─── Preview ───────────────────────────────────────────────────────────────
 
 /**
  * Preview icon sizes for live preview in TUI.

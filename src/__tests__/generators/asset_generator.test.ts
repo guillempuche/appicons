@@ -695,4 +695,368 @@ describe('AssetGenerator', () => {
 			expect(result).toHaveProperty('outputDir')
 		})
 	})
+
+	describe('iOS Contents.json generation', () => {
+		it('should generate Contents.json for iOS platform with icons', async () => {
+			// GIVEN config with iOS platform and icon type
+			mockConfig.platforms = ['ios']
+			mockConfig.assetTypes = ['icon']
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN Contents.json should be written
+			expect(fs.writeFile).toHaveBeenCalledWith(
+				expect.stringContaining('Contents.json'),
+				expect.any(String),
+			)
+		})
+
+		it('should include proper structure in Contents.json', async () => {
+			// GIVEN config with iOS platform and icon type
+			mockConfig.platforms = ['ios']
+			mockConfig.assetTypes = ['icon']
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN Contents.json should have valid JSON structure
+			const writeFileCalls = (fs.writeFile as any).mock.calls
+			const contentsCall = writeFileCalls.find((call: any[]) =>
+				call[0].includes('Contents.json'),
+			)
+
+			expect(contentsCall).toBeDefined()
+			const contentsJson = JSON.parse(contentsCall[1])
+			expect(contentsJson).toHaveProperty('images')
+			expect(contentsJson).toHaveProperty('info')
+			expect(contentsJson.info.author).toBe('appicons')
+		})
+
+		it('should include dark appearance variants', async () => {
+			// GIVEN config with iOS platform and icon type
+			mockConfig.platforms = ['ios']
+			mockConfig.assetTypes = ['icon']
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN Contents.json should include dark variants
+			const writeFileCalls = (fs.writeFile as any).mock.calls
+			const contentsCall = writeFileCalls.find((call: any[]) =>
+				call[0].includes('Contents.json'),
+			)
+
+			const contentsJson = JSON.parse(contentsCall[1])
+			const darkImages = contentsJson.images.filter((img: any) =>
+				img.appearances?.some(
+					(a: any) => a.appearance === 'luminosity' && a.value === 'dark',
+				),
+			)
+			expect(darkImages.length).toBeGreaterThan(0)
+		})
+
+		it('should include tinted appearance variants', async () => {
+			// GIVEN config with iOS platform and icon type
+			mockConfig.platforms = ['ios']
+			mockConfig.assetTypes = ['icon']
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN Contents.json should include tinted variants
+			const writeFileCalls = (fs.writeFile as any).mock.calls
+			const contentsCall = writeFileCalls.find((call: any[]) =>
+				call[0].includes('Contents.json'),
+			)
+
+			const contentsJson = JSON.parse(contentsCall[1])
+			const tintedImages = contentsJson.images.filter((img: any) =>
+				img.appearances?.some(
+					(a: any) => a.appearance === 'luminosity' && a.value === 'tinted',
+				),
+			)
+			expect(tintedImages.length).toBeGreaterThan(0)
+		})
+
+		it('should have correct idiom for iPhone/iPad icons', async () => {
+			// GIVEN config with iOS platform and icon type
+			mockConfig.platforms = ['ios']
+			mockConfig.assetTypes = ['icon']
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN Contents.json should have proper idioms
+			const writeFileCalls = (fs.writeFile as any).mock.calls
+			const contentsCall = writeFileCalls.find((call: any[]) =>
+				call[0].includes('Contents.json'),
+			)
+
+			const contentsJson = JSON.parse(contentsCall[1])
+			const hasIphone = contentsJson.images.some(
+				(img: any) => img.idiom === 'iphone',
+			)
+			const hasIpad = contentsJson.images.some(
+				(img: any) => img.idiom === 'ipad',
+			)
+			expect(hasIphone).toBe(true)
+			expect(hasIpad).toBe(true)
+		})
+	})
+
+	describe('Android XML generation', () => {
+		it('should generate ic_launcher.xml for Android with adaptive', async () => {
+			// GIVEN config with Android platform and adaptive type
+			mockConfig.platforms = ['android']
+			mockConfig.assetTypes = ['adaptive']
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN ic_launcher.xml should be written
+			expect(fs.writeFile).toHaveBeenCalledWith(
+				expect.stringContaining('ic_launcher.xml'),
+				expect.any(String),
+			)
+		})
+
+		it('should generate ic_launcher_round.xml for Android with adaptive', async () => {
+			// GIVEN config with Android platform and adaptive type
+			mockConfig.platforms = ['android']
+			mockConfig.assetTypes = ['adaptive']
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN ic_launcher_round.xml should be written
+			expect(fs.writeFile).toHaveBeenCalledWith(
+				expect.stringContaining('ic_launcher_round.xml'),
+				expect.any(String),
+			)
+		})
+
+		it('should include monochrome layer reference', async () => {
+			// GIVEN config with Android platform and adaptive type
+			mockConfig.platforms = ['android']
+			mockConfig.assetTypes = ['adaptive']
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN XML should include monochrome layer
+			const writeFileCalls = (fs.writeFile as any).mock.calls
+			const xmlCall = writeFileCalls.find(
+				(call: any[]) =>
+					call[0].includes('ic_launcher.xml') &&
+					call[0].includes('mipmap-anydpi'),
+			)
+
+			expect(xmlCall).toBeDefined()
+			expect(xmlCall[1]).toContain('monochrome')
+			expect(xmlCall[1]).toContain('@mipmap/ic_launcher_monochrome')
+		})
+
+		it('should generate colors.xml for solid color background', async () => {
+			// GIVEN config with Android platform, adaptive type, and solid color
+			mockConfig.platforms = ['android']
+			mockConfig.assetTypes = ['adaptive']
+			mockConfig.background = {
+				type: 'color',
+				color: { type: 'solid', color: '#FF5500' },
+			}
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN colors.xml should be written
+			expect(fs.writeFile).toHaveBeenCalledWith(
+				expect.stringContaining('colors.xml'),
+				expect.any(String),
+			)
+		})
+
+		it('should NOT generate colors.xml for gradient background', async () => {
+			// GIVEN config with Android platform, adaptive type, and gradient
+			mockConfig.platforms = ['android']
+			mockConfig.assetTypes = ['adaptive']
+			mockConfig.background = {
+				type: 'gradient',
+				gradient: { type: 'linear', colors: ['#FF0000', '#0000FF'], angle: 45 },
+			}
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN colors.xml should NOT be written
+			const writeFileCalls = (fs.writeFile as any).mock.calls
+			const colorsCall = writeFileCalls.find((call: any[]) =>
+				call[0].includes('colors.xml'),
+			)
+
+			expect(colorsCall).toBeUndefined()
+		})
+	})
+
+	describe('new platform generation', () => {
+		it('should generate watchOS icons', async () => {
+			// GIVEN config with watchOS platform
+			mockConfig.platforms = ['watchos'] as any
+			mockConfig.assetTypes = ['icon']
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			const result = await generateAssets(mockConfig)
+
+			// THEN watchOS assets should be generated
+			expect(result.success).toBe(true)
+			expect(result.assets.some(a => a.spec.platform === 'watchos')).toBe(true)
+		})
+
+		it('should generate tvOS icons', async () => {
+			// GIVEN config with tvOS platform
+			mockConfig.platforms = ['tvos'] as any
+			mockConfig.assetTypes = ['icon']
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			const result = await generateAssets(mockConfig)
+
+			// THEN tvOS assets should be generated
+			expect(result.success).toBe(true)
+			expect(result.assets.some(a => a.spec.platform === 'tvos')).toBe(true)
+		})
+
+		it('should generate visionOS icons', async () => {
+			// GIVEN config with visionOS platform
+			mockConfig.platforms = ['visionos'] as any
+			mockConfig.assetTypes = ['icon']
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			const result = await generateAssets(mockConfig)
+
+			// THEN visionOS assets should be generated
+			expect(result.success).toBe(true)
+			expect(result.assets.some(a => a.spec.platform === 'visionos')).toBe(true)
+		})
+
+		it('should generate store assets', async () => {
+			// GIVEN config with store asset type
+			mockConfig.platforms = ['android', 'ios']
+			mockConfig.assetTypes = ['store'] as any
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			const result = await generateAssets(mockConfig)
+
+			// THEN store assets should be generated
+			expect(result.success).toBe(true)
+			expect(result.assets.some(a => a.spec.type === 'store')).toBe(true)
+		})
+	})
+
+	describe('store scale', () => {
+		it('should use default store scale of 0.5', async () => {
+			// GIVEN config with store type, no custom scale
+			const { generateForeground } = await import(
+				'../../generators/foreground_generator'
+			)
+			mockConfig.platforms = ['android']
+			mockConfig.assetTypes = ['store'] as any
+			delete (mockConfig as any).storeScale
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN foreground should be generated at 50% of store graphic size
+			// For 512x512 play store icon, foreground should be 512 * 0.5 = 256
+			const calls = (generateForeground as any).mock.calls
+			const storeIconCall = calls.find(
+				(call: any[]) => call[1] === Math.floor(512 * 0.5),
+			)
+			expect(storeIconCall).toBeDefined()
+		})
+
+		it('should use custom store scale when provided', async () => {
+			// GIVEN config with custom store scale of 0.4
+			const { generateForeground } = await import(
+				'../../generators/foreground_generator'
+			)
+			mockConfig.platforms = ['android']
+			mockConfig.assetTypes = ['store'] as any
+			;(mockConfig as any).storeScale = 0.4
+
+			const { generateAssets } = await import(
+				'../../generators/asset_generator'
+			)
+
+			// WHEN generating assets
+			await generateAssets(mockConfig)
+
+			// THEN foreground should be generated at 40% of store graphic size
+			// For 512x512 play store icon, foreground should be 512 * 0.4 = 204
+			const calls = (generateForeground as any).mock.calls
+			const storeIconCall = calls.find(
+				(call: any[]) => call[1] === Math.floor(512 * 0.4),
+			)
+			expect(storeIconCall).toBeDefined()
+		})
+	})
 })

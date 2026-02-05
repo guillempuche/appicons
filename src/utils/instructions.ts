@@ -135,7 +135,89 @@ export function generateInstructions(context: GenerationContext): Instructions {
 		})
 	}
 
-	// Step 7: Rebuild native projects
+	// Step: Use auto-generated iOS Contents.json
+	if (platforms.includes('ios') && assetTypes.includes('icon')) {
+		steps.push({
+			step: stepNum++,
+			title: 'Use auto-generated iOS Contents.json',
+			description:
+				'Copy ios/AppIcon.appiconset/Contents.json to your Xcode asset catalog for automatic icon configuration',
+			files: [`${outputDir}/ios/AppIcon.appiconset/Contents.json`],
+		})
+	}
+
+	// Step: Use auto-generated Android XML
+	if (platforms.includes('android') && assetTypes.includes('adaptive')) {
+		steps.push({
+			step: stepNum++,
+			title: 'Use auto-generated Android adaptive icon XML',
+			description:
+				'Copy android/mipmap-anydpi-v26/*.xml to your Android res folder for adaptive icon configuration',
+			files: [
+				`${outputDir}/android/mipmap-anydpi-v26/ic_launcher.xml`,
+				`${outputDir}/android/mipmap-anydpi-v26/ic_launcher_round.xml`,
+			],
+		})
+	}
+
+	// Step: Upload store listing assets
+	if (assetTypes.includes('store')) {
+		steps.push({
+			step: stepNum++,
+			title: 'Upload store listing assets',
+			description:
+				'Upload store assets to App Store Connect and Google Play Console',
+			files: [
+				`${outputDir}/store/android/play-store-icon.png`,
+				`${outputDir}/store/android/feature-graphic.png`,
+				`${outputDir}/store/android/tv-banner.png`,
+				`${outputDir}/store/ios/app-store-icon.png`,
+			],
+		})
+	}
+
+	// Step: Configure watchOS icons
+	if (platforms.includes('watchos') && assetTypes.includes('icon')) {
+		steps.push({
+			step: stepNum++,
+			title: 'Configure watchOS icons',
+			description:
+				'Copy watchos/ folder to your Xcode asset catalog for Apple Watch icons',
+			files: [`${outputDir}/watchos/`],
+		})
+	}
+
+	// Step: Configure tvOS icons
+	if (platforms.includes('tvos') && assetTypes.includes('icon')) {
+		steps.push({
+			step: stepNum++,
+			title: 'Configure tvOS icons',
+			description:
+				'Copy tvos/ folder to your Xcode asset catalog. Configure layered image stack with icon-back and icon-front layers for parallax effect.',
+			files: [
+				`${outputDir}/tvos/icon-back*.png`,
+				`${outputDir}/tvos/icon-front*.png`,
+				`${outputDir}/tvos/top-shelf*.png`,
+			],
+		})
+	}
+
+	// Step: Configure visionOS icons
+	if (platforms.includes('visionos') && assetTypes.includes('icon')) {
+		steps.push({
+			step: stepNum++,
+			title: 'Configure visionOS icons',
+			description:
+				'Copy visionos/ folder to your Xcode asset catalog. Configure 3D layered icon with icon-back and icon-front layers.',
+			files: [
+				`${outputDir}/visionos/icon-1024.png`,
+				`${outputDir}/visionos/icon-back.png`,
+				`${outputDir}/visionos/icon-front.png`,
+			],
+		})
+	}
+
+	// Step: Rebuild native projects
 	steps.push({
 		step: stepNum++,
 		title: 'Rebuild native projects',
@@ -172,8 +254,37 @@ export function generateInstructions(context: GenerationContext): Instructions {
 			'Android 13+ themed icons require a monochrome layer in adaptive-icon XML',
 		)
 		notes.push(
-			'Add <monochrome android:drawable="@mipmap/ic_launcher_monochrome"/> to ic_launcher.xml',
+			'ic_launcher.xml and ic_launcher_round.xml are auto-generated with monochrome layer',
 		)
+	}
+
+	// watchOS notes
+	if (platforms.includes('watchos') && assetTypes.includes('icon')) {
+		notes.push('watchOS icons use circular mask with 80% safe zone')
+		notes.push('watchOS icons are generated at @2x scale for all sizes')
+	}
+
+	// tvOS notes
+	if (platforms.includes('tvos') && assetTypes.includes('icon')) {
+		notes.push(
+			'tvOS uses layered icons (back/front) for parallax effect on Apple TV',
+		)
+		notes.push('Top shelf images are shown when app is focused on home screen')
+	}
+
+	// visionOS notes
+	if (platforms.includes('visionos') && assetTypes.includes('icon')) {
+		notes.push('visionOS icons use circular mask with 80% safe zone')
+		notes.push('visionOS supports optional 3D layered icons (back/front)')
+	}
+
+	// Store listing notes
+	if (assetTypes.includes('store')) {
+		notes.push('Play Store icon: 512x512 PNG, required for Google Play')
+		notes.push(
+			'Feature graphic: 1024x500 PNG, displayed on Play Store app page',
+		)
+		notes.push('TV banner: 1280x720 PNG, for Android TV apps on Play Store')
 	}
 
 	if (context.zipPath) {

@@ -564,8 +564,6 @@ describe('ForegroundGenerator', () => {
 
 		it('should handle emoji characters', async () => {
 			// GIVEN a text config with emoji
-			const sharp = (await import('sharp')).default as any
-
 			const { generateForeground } = await import(
 				'../../generators/foreground_generator'
 			)

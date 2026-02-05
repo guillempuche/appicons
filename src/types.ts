@@ -14,10 +14,16 @@
 // ─── Platform and Asset Type Enums ─────────────────────────────────────────
 
 /** Target platform for asset generation. */
-export type Platform = 'ios' | 'android' | 'web'
+export type Platform =
+	| 'ios'
+	| 'android'
+	| 'web'
+	| 'watchos'
+	| 'tvos'
+	| 'visionos'
 
 /** Category of asset to generate. */
-export type AssetType = 'icon' | 'splash' | 'adaptive' | 'favicon'
+export type AssetType = 'icon' | 'splash' | 'adaptive' | 'favicon' | 'store'
 
 /** Type of background layer. */
 export type BackgroundType = 'color' | 'gradient' | 'image'
@@ -203,6 +209,22 @@ export interface AssetGeneratorConfig {
 	 * sizes including favicon.ico and PNG favicons.
 	 */
 	faviconScale?: number
+
+	/**
+	 * Foreground scale for store listing graphics (0.3 to 0.8).
+	 *
+	 * Controls how much of the store graphic canvas the logo fills.
+	 * Default: 0.5 (50% of graphic size).
+	 *
+	 * Best practices:
+	 * - 0.5: Standard, centered branding with comfortable padding.
+	 * - 0.3-0.4: Conservative, more background visible for feature graphics.
+	 * - 0.6-0.8: Prominent, fills more of the graphic.
+	 *
+	 * Note: Store graphics (feature graphic, TV banner) are typically
+	 * wide-format and benefit from lower scales to avoid crowding.
+	 */
+	storeScale?: number
 }
 
 // ─── Asset Specification and Results ───────────────────────────────────────

@@ -24,6 +24,10 @@ import {
 	IOS_ICONS_DARK,
 	IOS_ICONS_TINTED,
 	IOS_SPLASH,
+	STORE_ASSETS,
+	TVOS_ICONS,
+	VISIONOS_ICONS,
+	WATCHOS_ICONS,
 	WEB_FAVICONS,
 } from '../../assets/asset_specs'
 
@@ -581,6 +585,310 @@ describe('AssetSpecs', () => {
 
 			// THEN all names should be unique
 			expect(names.length).toBe(uniqueNames.size)
+		})
+	})
+
+	describe('Store assets', () => {
+		it('should have Play Store icon at 512x512', () => {
+			// GIVEN the store assets specification
+			const playStoreIcon = STORE_ASSETS.find(a =>
+				a.name.includes('play-store-icon'),
+			)
+
+			// THEN Play Store icon should be 512x512
+			expect(playStoreIcon).toBeDefined()
+			expect(playStoreIcon?.width).toBe(512)
+			expect(playStoreIcon?.height).toBe(512)
+		})
+
+		it('should have feature graphic at 1024x500', () => {
+			// GIVEN the store assets specification
+			const featureGraphic = STORE_ASSETS.find(a =>
+				a.name.includes('feature-graphic'),
+			)
+
+			// THEN feature graphic should be 1024x500
+			expect(featureGraphic).toBeDefined()
+			expect(featureGraphic?.width).toBe(1024)
+			expect(featureGraphic?.height).toBe(500)
+		})
+
+		it('should have TV banner at 1280x720', () => {
+			// GIVEN the store assets specification
+			const tvBanner = STORE_ASSETS.find(a => a.name.includes('tv-banner'))
+
+			// THEN TV banner should be 1280x720
+			expect(tvBanner).toBeDefined()
+			expect(tvBanner?.width).toBe(1280)
+			expect(tvBanner?.height).toBe(720)
+		})
+
+		it('should have App Store icon at 1024x1024', () => {
+			// GIVEN the store assets specification
+			const appStoreIcon = STORE_ASSETS.find(a =>
+				a.name.includes('app-store-icon'),
+			)
+
+			// THEN App Store icon should be 1024x1024
+			expect(appStoreIcon).toBeDefined()
+			expect(appStoreIcon?.width).toBe(1024)
+			expect(appStoreIcon?.height).toBe(1024)
+		})
+
+		it('should include both Android and iOS store assets', () => {
+			// GIVEN the store assets specification
+			const hasAndroid = STORE_ASSETS.some(a => a.platform === 'android')
+			const hasIOS = STORE_ASSETS.some(a => a.platform === 'ios')
+
+			// THEN both platforms should be represented
+			expect(hasAndroid).toBe(true)
+			expect(hasIOS).toBe(true)
+		})
+	})
+
+	describe('watchOS icons', () => {
+		it('should have 1024px main icon', () => {
+			// GIVEN the watchOS icons specification
+			const mainIcon = WATCHOS_ICONS.find(
+				i => i.name === 'watchos/icon-1024.png',
+			)
+
+			// THEN main icon should be 1024x1024
+			expect(mainIcon).toBeDefined()
+			expect(mainIcon?.width).toBe(1024)
+			expect(mainIcon?.height).toBe(1024)
+		})
+
+		it('should all be square', () => {
+			// GIVEN the watchOS icons specification
+			// THEN all icons should have equal width and height
+			for (const icon of WATCHOS_ICONS) {
+				expect(icon.width).toBe(icon.height)
+			}
+		})
+
+		it('should all have watchos platform', () => {
+			// GIVEN the watchOS icons specification
+			// THEN all icons should have platform set to watchos
+			for (const icon of WATCHOS_ICONS) {
+				expect(icon.platform).toBe('watchos')
+			}
+		})
+
+		it('should have @2x variants', () => {
+			// GIVEN the watchOS icons specification
+			const hasScale2 = WATCHOS_ICONS.some(i => i.scale === 2)
+
+			// THEN @2x scale variants should exist
+			expect(hasScale2).toBe(true)
+		})
+	})
+
+	describe('tvOS icons', () => {
+		it('should have layered icon files (back/front)', () => {
+			// GIVEN the tvOS icons specification
+			const hasBack = TVOS_ICONS.some(i => i.name.includes('back'))
+			const hasFront = TVOS_ICONS.some(i => i.name.includes('front'))
+
+			// THEN both back and front layers should exist
+			expect(hasBack).toBe(true)
+			expect(hasFront).toBe(true)
+		})
+
+		it('should have top shelf images', () => {
+			// GIVEN the tvOS icons specification
+			const hasTopShelf = TVOS_ICONS.some(i => i.name.includes('top-shelf'))
+
+			// THEN top shelf images should exist
+			expect(hasTopShelf).toBe(true)
+		})
+
+		it('should have correct icon dimensions (800x480 @2x)', () => {
+			// GIVEN the tvOS icons specification
+			const icon2x = TVOS_ICONS.find(
+				i => i.name === 'tvos/icon-back@2x.png' && i.scale === 2,
+			)
+
+			// THEN @2x icon should be 800x480
+			expect(icon2x).toBeDefined()
+			expect(icon2x?.width).toBe(800)
+			expect(icon2x?.height).toBe(480)
+		})
+
+		it('should have correct top shelf dimensions', () => {
+			// GIVEN the tvOS icons specification
+			const topShelf1x = TVOS_ICONS.find(
+				i => i.name === 'tvos/top-shelf.png' && !i.scale,
+			)
+			const topShelf2x = TVOS_ICONS.find(
+				i => i.name === 'tvos/top-shelf@2x.png' && i.scale === 2,
+			)
+
+			// THEN top shelf sizes should be correct
+			expect(topShelf1x?.width).toBe(1920)
+			expect(topShelf1x?.height).toBe(720)
+			expect(topShelf2x?.width).toBe(3840)
+			expect(topShelf2x?.height).toBe(1440)
+		})
+	})
+
+	describe('visionOS icons', () => {
+		it('should have 1024px main icon', () => {
+			// GIVEN the visionOS icons specification
+			const mainIcon = VISIONOS_ICONS.find(
+				i => i.name === 'visionos/icon-1024.png',
+			)
+
+			// THEN main icon should be 1024x1024
+			expect(mainIcon).toBeDefined()
+			expect(mainIcon?.width).toBe(1024)
+			expect(mainIcon?.height).toBe(1024)
+		})
+
+		it('should have layered icon files', () => {
+			// GIVEN the visionOS icons specification
+			const hasBack = VISIONOS_ICONS.some(i => i.name.includes('back'))
+			const hasFront = VISIONOS_ICONS.some(i => i.name.includes('front'))
+
+			// THEN both back and front layers should exist
+			expect(hasBack).toBe(true)
+			expect(hasFront).toBe(true)
+		})
+
+		it('should all be square', () => {
+			// GIVEN the visionOS icons specification
+			// THEN all icons should have equal width and height
+			for (const icon of VISIONOS_ICONS) {
+				expect(icon.width).toBe(icon.height)
+			}
+		})
+	})
+
+	describe('getAssetsByPlatform with new platforms', () => {
+		it('should return watchOS assets for watchos', () => {
+			// GIVEN the watchos platform filter
+			// WHEN getting assets by platform
+			const assets = getAssetsByPlatform('watchos')
+
+			// THEN all returned assets should be watchOS assets
+			expect(assets.length).toBeGreaterThan(0)
+			expect(assets.every(a => a.platform === 'watchos')).toBe(true)
+		})
+
+		it('should return tvOS assets for tvos', () => {
+			// GIVEN the tvos platform filter
+			// WHEN getting assets by platform
+			const assets = getAssetsByPlatform('tvos')
+
+			// THEN all returned assets should be tvOS assets
+			expect(assets.length).toBeGreaterThan(0)
+			expect(assets.every(a => a.platform === 'tvos')).toBe(true)
+		})
+
+		it('should return visionOS assets for visionos', () => {
+			// GIVEN the visionos platform filter
+			// WHEN getting assets by platform
+			const assets = getAssetsByPlatform('visionos')
+
+			// THEN all returned assets should be visionOS assets
+			expect(assets.length).toBeGreaterThan(0)
+			expect(assets.every(a => a.platform === 'visionos')).toBe(true)
+		})
+	})
+
+	describe('getAssetsByType with store type', () => {
+		it('should return store assets for store type', () => {
+			// GIVEN the store type filter
+			// WHEN getting assets by type
+			const assets = getAssetsByType('store')
+
+			// THEN all returned assets should be store type
+			expect(assets.length).toBeGreaterThan(0)
+			expect(assets.every(a => a.type === 'store')).toBe(true)
+		})
+
+		it('should include both Android and iOS store assets', () => {
+			// GIVEN the store type filter
+			// WHEN getting assets by type
+			const assets = getAssetsByType('store')
+
+			// THEN both platforms should be included
+			expect(assets.some(a => a.platform === 'android')).toBe(true)
+			expect(assets.some(a => a.platform === 'ios')).toBe(true)
+		})
+	})
+
+	describe('getVariantAssetsByPlatform with new platforms', () => {
+		it('should return empty array for watchos (no variants)', () => {
+			// GIVEN the watchos platform filter
+			// WHEN getting variant assets by platform
+			const variants = getVariantAssetsByPlatform('watchos')
+
+			// THEN should return empty array (no variants yet)
+			expect(variants).toEqual([])
+		})
+
+		it('should return empty array for tvos (no variants)', () => {
+			// GIVEN the tvos platform filter
+			// WHEN getting variant assets by platform
+			const variants = getVariantAssetsByPlatform('tvos')
+
+			// THEN should return empty array (no variants yet)
+			expect(variants).toEqual([])
+		})
+
+		it('should return empty array for visionos (no variants)', () => {
+			// GIVEN the visionos platform filter
+			// WHEN getting variant assets by platform
+			const variants = getVariantAssetsByPlatform('visionos')
+
+			// THEN should return empty array (no variants yet)
+			expect(variants).toEqual([])
+		})
+	})
+
+	describe('getVariantAssetsByType with store type', () => {
+		it('should return empty array for store (no variants)', () => {
+			// GIVEN the store type filter
+			// WHEN getting variant assets by type
+			const variants = getVariantAssetsByType('store')
+
+			// THEN should return empty array
+			expect(variants).toEqual([])
+		})
+	})
+
+	describe('getAllAssets includes new platforms', () => {
+		it('should include store assets', () => {
+			// WHEN getting all assets
+			const all = getAllAssets()
+
+			// THEN store assets should be included
+			expect(all.some(a => a.type === 'store')).toBe(true)
+		})
+
+		it('should include watchOS assets', () => {
+			// WHEN getting all assets
+			const all = getAllAssets()
+
+			// THEN watchOS assets should be included
+			expect(all.some(a => a.platform === 'watchos')).toBe(true)
+		})
+
+		it('should include tvOS assets', () => {
+			// WHEN getting all assets
+			const all = getAllAssets()
+
+			// THEN tvOS assets should be included
+			expect(all.some(a => a.platform === 'tvos')).toBe(true)
+		})
+
+		it('should include visionOS assets', () => {
+			// WHEN getting all assets
+			const all = getAllAssets()
+
+			// THEN visionOS assets should be included
+			expect(all.some(a => a.platform === 'visionos')).toBe(true)
 		})
 	})
 })

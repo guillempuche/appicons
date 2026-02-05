@@ -1,16 +1,22 @@
 # appicons
 
-**App Icon Generator CLI** — Generate icons, splash screens, and favicons for iOS, Android & Web
+**App Icon Generator CLI** — Generate icons, splash screens, and favicons for iOS, Android, Web & Apple platforms
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![iOS 18 Ready](https://img.shields.io/badge/iOS_18-Ready-blue.svg)](https://developer.apple.com/design/human-interface-guidelines/app-icons)
 [![Android 13+ Ready](https://img.shields.io/badge/Android_13+-Ready-green.svg)](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive)
+[![watchOS Ready](https://img.shields.io/badge/watchOS-Ready-blue.svg)](https://developer.apple.com/design/human-interface-guidelines/app-icons#watchOS)
+[![tvOS Ready](https://img.shields.io/badge/tvOS-Ready-blue.svg)](https://developer.apple.com/design/human-interface-guidelines/app-icons#tvOS)
+[![visionOS Ready](https://img.shields.io/badge/visionOS-Ready-blue.svg)](https://developer.apple.com/design/human-interface-guidelines/app-icons#visionOS)
 
-A CLI tool that generates **100+ app assets** from a single command. Create app icons, launch screens, adaptive icons, and PWA assets for React Native, Expo, Flutter, native iOS/Android, and web apps.
+A CLI tool that generates **100+ app assets** from a single command. Create app icons, launch screens, adaptive icons, and PWA assets for React Native, Expo, Flutter, native iOS/Android/watchOS/tvOS/visionOS, and web apps.
 
 - **iOS 18 ready**: Dark mode, tinted, and clear icon appearances
 - **Android 13+ ready**: Material You themed monochrome icons
+- **Apple platforms**: watchOS, tvOS (layered parallax), visionOS (3D layers)
 - **PWA compliant**: Maskable and monochrome icons with auto-generated `site.webmanifest`
+- **Store listing assets**: Play Store icon, feature graphic, TV banner
+- **Auto-generated configs**: Xcode Contents.json, Android ic_launcher.xml
 - **Google Fonts**: Use any font from fonts.google.com for text-based icons
 
 ## Use Cases
@@ -19,7 +25,11 @@ A CLI tool that generates **100+ app assets** from a single command. Create app 
 - **Flutter apps**: Generate Android adaptive icons and iOS app icons
 - **Native iOS apps**: Full iOS 18 icon set with dark/tinted/clear variants for Xcode
 - **Native Android apps**: Adaptive icons with monochrome layer for Material You theming
+- **watchOS apps**: Circular icons for Apple Watch (9 sizes)
+- **tvOS apps**: Layered icons with parallax effect for Apple TV
+- **visionOS apps**: 3D layered icons for Vision Pro
 - **PWA / Web apps**: Favicons, Apple touch icons, and maskable icons with manifest
+- **App Store / Play Store**: Store listing graphics (feature graphic, TV banner)
 - **Prototypes**: Quickly generate placeholder icons with text and colors
 - **CI/CD pipelines**: Automate asset generation with `--format json` for scripting
 
@@ -185,6 +195,9 @@ appicons generate --fg-type image --fg-image ./logo.png \
   - iOS: App icons (20px - 1024px), Splash screens (iPhone, iPad)
   - Android: Icons, Adaptive icons (foreground + background), Splash screens
   - Web: Favicons, Apple touch icons, PWA icons
+  - watchOS: Circular icons for Apple Watch (9 sizes from 48pt to 234pt)
+  - tvOS: Layered icons with parallax effect, top shelf banners
+  - visionOS: 3D layered icons for Vision Pro
 
 - **iOS 18+ Icon Appearances**: All 5 icon variants generated automatically
   - Default: Standard light appearance
@@ -197,6 +210,22 @@ appicons generate --fg-type image --fg-image ./logo.png \
   - Monochrome icons for dynamic theming
   - Proper 66dp safe zone compliance
   - Auto-generated for all density buckets
+
+- **Apple Platform Icons**:
+  - watchOS: 9 circular icon sizes for Apple Watch
+  - tvOS: Layered back/front icons for parallax effect, top shelf images
+  - visionOS: 3D layered icons with back/front layers for depth
+
+- **Store Listing Assets**:
+  - Play Store icon (512×512)
+  - Feature graphic (1024×500)
+  - TV banner (1280×720)
+  - App Store icon (1024×1024)
+
+- **Auto-Generated Config Files**:
+  - iOS: Xcode `Contents.json` with all icon entries and appearances
+  - Android: `ic_launcher.xml` and `ic_launcher_round.xml` for adaptive icons
+  - Android: `colors.xml` for solid color backgrounds
 
 - **PWA & Web Manifest (W3C Standard)**:
   - Standard icons (purpose: "any")
@@ -217,6 +246,11 @@ appicons generate --fg-type image --fg-image ./logo.png \
   - System fonts (Arial, Times New Roman, etc.)
   - SVG icons with color override
   - PNG/JPG images
+
+- **Safe Zone Validation**: Warns when scale exceeds platform-specific safe zones
+  - Android adaptive: 66dp of 108dp canvas (61%)
+  - Web maskable: 80% safe zone
+  - Circular icons (watchOS/visionOS): 80% diameter
 
 - **Interactive TUI**: OpenTUI-based terminal interface with image preview and font autocomplete
 - **CLI Mode**: Command-line interface for automation and AI agents with shell completion and dry-run preview
@@ -302,8 +336,8 @@ Commands:
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--name` | `MyApp` | App name for manifest |
-| `--platforms` | `ios,android,web` | Target platforms (comma-separated) |
-| `--types` | `icon,splash,adaptive,favicon` | Asset types to generate |
+| `--platforms` | `ios,android,web` | Target platforms: `ios`, `android`, `web`, `watchos`, `tvos`, `visionos` |
+| `--types` | `icon,splash,adaptive,favicon` | Asset types: `icon`, `splash`, `adaptive`, `favicon`, `store` |
 | `--bg-type` | `color` | Background type: `color`, `gradient`, `image` |
 | `--bg-color` | `#FFFFFF` | Background color (hex) |
 | `--bg-gradient-type` | `linear` | Gradient type: `linear`, `radial` |
@@ -323,6 +357,7 @@ Commands:
 | `--icon-scale` | `0.7` | Icon foreground scale (0.1-1.5) |
 | `--splash-scale` | `0.25` | Splash foreground scale (0.05-1.0) |
 | `--favicon-scale` | `0.85` | Favicon foreground scale (0.5-1.0) |
+| `--store-scale` | `0.5` | Store listing foreground scale (0.3-0.8) |
 | `-o, --output` | auto | Output directory path |
 | `--format` | `text` | Output format: `text`, `json` |
 | `--dry-run` | `false` | Show planned files without generating |
@@ -422,11 +457,13 @@ appicons completion >> ~/.zshrc   # zsh
 
 ## Output Structure
 
-Each generation creates 96 assets across all platforms:
+Each generation creates 100+ assets across all platforms:
 
 ```
 assets/<output-folder>/
 ├── ios/
+│   ├── AppIcon.appiconset/
+│   │   └── Contents.json              # Xcode asset catalog
 │   ├── icon-{20,29,40,60,76,83.5,1024}{,@2x,@3x}.png
 │   ├── dark/icon-*.png                # iOS 18 dark mode
 │   ├── tinted/icon-*.png              # iOS 18 tinted (monochrome)
@@ -434,11 +471,16 @@ assets/<output-folder>/
 │   ├── clear-dark/icon-*.png          # iOS 18 clear (dark bg)
 │   └── splash-*.png                   # 13 splash screen sizes
 ├── android/
+│   ├── mipmap-anydpi-v26/
+│   │   ├── ic_launcher.xml            # Adaptive icon config
+│   │   └── ic_launcher_round.xml      # Round icon config
 │   ├── mipmap-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/
 │   │   ├── ic_launcher.png
 │   │   ├── ic_launcher_foreground.png
 │   │   ├── ic_launcher_background.png
 │   │   └── ic_launcher_monochrome.png # Android 13+ themed
+│   ├── values/
+│   │   └── colors.xml                 # Background color (if solid)
 │   ├── drawable-{mdpi→xxxhdpi}/splash.png
 │   └── drawable-night-{mdpi→xxxhdpi}/splash.png
 ├── web/
@@ -448,6 +490,27 @@ assets/<output-folder>/
 │   ├── icon-maskable-*.png            # PWA maskable
 │   ├── icon-monochrome-*.png          # PWA monochrome
 │   └── site.webmanifest               # W3C Web App Manifest
+├── watchos/                           # Apple Watch
+│   ├── icon-1024.png                  # App Store
+│   └── icon-{48,80,88,92,172,196,216,234}@2x.png
+├── tvos/                              # Apple TV
+│   ├── icon-back.png                  # Background layer @1x
+│   ├── icon-back@2x.png               # Background layer @2x
+│   ├── icon-front.png                 # Foreground layer @1x
+│   ├── icon-front@2x.png              # Foreground layer @2x
+│   ├── top-shelf.png                  # Top shelf banner @1x
+│   └── top-shelf@2x.png               # Top shelf banner @2x
+├── visionos/                          # Vision Pro
+│   ├── icon-1024.png                  # Main icon
+│   ├── icon-back.png                  # Background layer
+│   └── icon-front.png                 # Foreground layer
+├── store/                             # Store listing assets
+│   ├── android/
+│   │   ├── play-store-icon.png        # 512×512
+│   │   ├── feature-graphic.png        # 1024×500
+│   │   └── tv-banner.png              # 1280×720
+│   └── ios/
+│       └── app-store-icon.png         # 1024×1024
 └── README.md                          # Config & integration guide
 ```
 
@@ -483,6 +546,41 @@ assets/<output-folder>/
 - **Web Manifest**: Auto-generated `site.webmanifest` with all icon purposes
 - **Format**: PNG
 
+### watchOS
+
+- **Icons**: 9 sizes from 48pt to 234pt (all @2x) plus 1024px for App Store
+- **Shape**: Circular (system applies mask automatically)
+- **Safe Zone**: 80% diameter — keep content within inner circle
+- **Format**: PNG
+
+### tvOS
+
+- **Layered Icons**: Back + front layers for parallax effect
+  - Background layer: 400×240 @1x, 800×480 @2x
+  - Foreground layer: 400×240 @1x, 800×480 @2x
+- **Top Shelf**: Banner images for featured content
+  - Standard: 1920×720 @1x, 3840×1440 @2x
+- **Safe Zone**: Inner 80% of canvas
+- **Parallax**: System animates layers for depth effect based on remote input
+- **Format**: PNG
+
+### visionOS
+
+- **Main Icon**: 1024×1024 circular icon
+- **Layered Icons**: Back + front layers for 3D depth effect
+  - Background layer: 1024×1024
+  - Foreground layer: 1024×1024
+- **Shape**: Circular (system applies mask)
+- **Safe Zone**: 80% diameter
+- **Format**: PNG
+
+### Store Listing
+
+- **Play Store Icon**: 512×512 (required for Google Play)
+- **Feature Graphic**: 1024×500 (displayed on Play Store listing)
+- **TV Banner**: 1280×720 (for Android TV apps)
+- **App Store Icon**: 1024×1024 (same as iOS icon, convenience copy)
+
 ## Tips
 
 1. **Icon Design**: Keep your foreground simple and centered. Test at small sizes (20px) to ensure visibility.
@@ -510,6 +608,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 - [iOS 18 Icon Appearances](https://developer.apple.com/documentation/xcode/configuring-your-app-icon)
 - [Android Adaptive Icons](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive)
 - [Android 13 Themed Icons](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive#themed)
+- [watchOS App Icons](https://developer.apple.com/design/human-interface-guidelines/app-icons#watchOS)
+- [tvOS App Icons](https://developer.apple.com/design/human-interface-guidelines/app-icons#tvOS)
+- [visionOS App Icons](https://developer.apple.com/design/human-interface-guidelines/app-icons#visionOS)
+- [Google Play Icon Specifications](https://developer.android.com/distribute/google-play/resources/icon-design-specifications)
 - [Google Fonts](https://fonts.google.com/)
 
 ## License

@@ -774,6 +774,232 @@ export const ANDROID_MONOCHROME_ICONS: AssetSpec[] = [
 	},
 ]
 
+// ─── Store Listing Assets ──────────────────────────────────────────────────
+
+/**
+ * Store listing assets for app stores.
+ * - Play Store icon: 512×512 (required for Google Play)
+ * - Feature graphic: 1024×500 (Play Store feature banner)
+ * - TV banner: 1280×720 (Google Play TV apps)
+ * - App Store icon: 1024×1024 (same as ios/icon-1024, but in store/ folder)
+ */
+export const STORE_ASSETS: AssetSpec[] = [
+	{
+		name: 'store/android/play-store-icon.png',
+		width: 512,
+		height: 512,
+		platform: 'android',
+		type: 'store',
+	},
+	{
+		name: 'store/android/feature-graphic.png',
+		width: 1024,
+		height: 500,
+		platform: 'android',
+		type: 'store',
+	},
+	{
+		name: 'store/android/tv-banner.png',
+		width: 1280,
+		height: 720,
+		platform: 'android',
+		type: 'store',
+	},
+	{
+		name: 'store/ios/app-store-icon.png',
+		width: 1024,
+		height: 1024,
+		platform: 'ios',
+		type: 'store',
+	},
+]
+
+// ─── watchOS Icons ─────────────────────────────────────────────────────────
+
+/**
+ * watchOS app icons for Apple Watch.
+ * Icons are circular (system applies mask).
+ * Safe zone: 80% diameter.
+ *
+ * Sizes per Apple HIG:
+ * - 48pt @2x (96px): 38mm/40mm Notification Center
+ * - 80pt @2x (160px): 40mm/44mm Home Screen
+ * - 88pt @2x (176px): 38mm Long-Look
+ * - 92pt @2x (184px): 40mm Long-Look
+ * - 172pt @2x (344px): 44mm Long-Look
+ * - 196pt @2x (392px): 45mm Long-Look
+ * - 216pt @2x (432px): 49mm Long-Look
+ * - 234pt @2x (468px): 44mm Home Screen
+ * - 1024px: App Store
+ */
+export const WATCHOS_ICONS: AssetSpec[] = [
+	{
+		name: 'watchos/icon-1024.png',
+		width: 1024,
+		height: 1024,
+		platform: 'watchos',
+		type: 'icon',
+	},
+	{
+		name: 'watchos/icon-48@2x.png',
+		width: 96,
+		height: 96,
+		platform: 'watchos',
+		type: 'icon',
+		scale: 2,
+	},
+	{
+		name: 'watchos/icon-80@2x.png',
+		width: 160,
+		height: 160,
+		platform: 'watchos',
+		type: 'icon',
+		scale: 2,
+	},
+	{
+		name: 'watchos/icon-88@2x.png',
+		width: 176,
+		height: 176,
+		platform: 'watchos',
+		type: 'icon',
+		scale: 2,
+	},
+	{
+		name: 'watchos/icon-92@2x.png',
+		width: 184,
+		height: 184,
+		platform: 'watchos',
+		type: 'icon',
+		scale: 2,
+	},
+	{
+		name: 'watchos/icon-172@2x.png',
+		width: 344,
+		height: 344,
+		platform: 'watchos',
+		type: 'icon',
+		scale: 2,
+	},
+	{
+		name: 'watchos/icon-196@2x.png',
+		width: 392,
+		height: 392,
+		platform: 'watchos',
+		type: 'icon',
+		scale: 2,
+	},
+	{
+		name: 'watchos/icon-216@2x.png',
+		width: 432,
+		height: 432,
+		platform: 'watchos',
+		type: 'icon',
+		scale: 2,
+	},
+	{
+		name: 'watchos/icon-234@2x.png',
+		width: 468,
+		height: 468,
+		platform: 'watchos',
+		type: 'icon',
+		scale: 2,
+	},
+]
+
+// ─── tvOS Icons ────────────────────────────────────────────────────────────
+
+/**
+ * tvOS app icons for Apple TV.
+ * Uses layered image stacks for parallax effect.
+ * Dimensions: 400×240 @1x, 800×480 @2x per Apple HIG.
+ * Safe zone: Inner 80% of canvas.
+ *
+ * Top Shelf: Banner shown when app is focused on top row.
+ * 1920×720 @1x, 3840×1440 @2x.
+ */
+export const TVOS_ICONS: AssetSpec[] = [
+	// Background layer
+	{
+		name: 'tvos/icon-back.png',
+		width: 400,
+		height: 240,
+		platform: 'tvos',
+		type: 'icon',
+	},
+	{
+		name: 'tvos/icon-back@2x.png',
+		width: 800,
+		height: 480,
+		platform: 'tvos',
+		type: 'icon',
+		scale: 2,
+	},
+	// Foreground layer
+	{
+		name: 'tvos/icon-front.png',
+		width: 400,
+		height: 240,
+		platform: 'tvos',
+		type: 'icon',
+	},
+	{
+		name: 'tvos/icon-front@2x.png',
+		width: 800,
+		height: 480,
+		platform: 'tvos',
+		type: 'icon',
+		scale: 2,
+	},
+	// Top Shelf banner
+	{
+		name: 'tvos/top-shelf.png',
+		width: 1920,
+		height: 720,
+		platform: 'tvos',
+		type: 'icon',
+	},
+	{
+		name: 'tvos/top-shelf@2x.png',
+		width: 3840,
+		height: 1440,
+		platform: 'tvos',
+		type: 'icon',
+		scale: 2,
+	},
+]
+
+// ─── visionOS Icons ────────────────────────────────────────────────────────
+
+/**
+ * visionOS app icons for Apple Vision Pro.
+ * Icons are circular (system applies mask).
+ * Safe zone: 80% diameter.
+ * Supports optional layered 3D effect with back/front layers.
+ */
+export const VISIONOS_ICONS: AssetSpec[] = [
+	{
+		name: 'visionos/icon-1024.png',
+		width: 1024,
+		height: 1024,
+		platform: 'visionos',
+		type: 'icon',
+	},
+	{
+		name: 'visionos/icon-back.png',
+		width: 1024,
+		height: 1024,
+		platform: 'visionos',
+		type: 'icon',
+	},
+	{
+		name: 'visionos/icon-front.png',
+		width: 1024,
+		height: 1024,
+		platform: 'visionos',
+		type: 'icon',
+	},
+]
+
 // ─── Web Favicons ──────────────────────────────────────────────────────────
 
 /**
@@ -929,15 +1155,27 @@ export const WEB_FAVICONS: AssetSpec[] = [
  * Light mode only (default behavior).
  */
 export function getAssetsByPlatform(
-	platform: 'ios' | 'android' | 'web',
+	platform: 'ios' | 'android' | 'web' | 'watchos' | 'tvos' | 'visionos',
 ): AssetSpec[] {
+	const storeForPlatform = STORE_ASSETS.filter(s => s.platform === platform)
 	switch (platform) {
 		case 'ios':
-			return [...IOS_ICONS, ...IOS_SPLASH]
+			return [...IOS_ICONS, ...IOS_SPLASH, ...storeForPlatform]
 		case 'android':
-			return [...ANDROID_ICONS, ...ANDROID_ADAPTIVE_ICONS, ...ANDROID_SPLASH]
+			return [
+				...ANDROID_ICONS,
+				...ANDROID_ADAPTIVE_ICONS,
+				...ANDROID_SPLASH,
+				...storeForPlatform,
+			]
 		case 'web':
 			return WEB_FAVICONS
+		case 'watchos':
+			return WATCHOS_ICONS
+		case 'tvos':
+			return TVOS_ICONS
+		case 'visionos':
+			return VISIONOS_ICONS
 	}
 }
 
@@ -946,7 +1184,7 @@ export function getAssetsByPlatform(
  * Returns specs that have colorMode set to any non-light value.
  */
 export function getVariantAssetsByPlatform(
-	platform: 'ios' | 'android' | 'web',
+	platform: 'ios' | 'android' | 'web' | 'watchos' | 'tvos' | 'visionos',
 ): AssetSpec[] {
 	switch (platform) {
 		case 'ios':
@@ -962,6 +1200,11 @@ export function getVariantAssetsByPlatform(
 			// Web maskable and monochrome icons are included in WEB_FAVICONS
 			// They have colorMode set to identify their purpose
 			return WEB_FAVICONS.filter(spec => spec.colorMode !== undefined)
+		case 'watchos':
+		case 'tvos':
+		case 'visionos':
+			// New platforms don't have variants yet
+			return []
 	}
 }
 
@@ -979,17 +1222,25 @@ export function getDarkAssetsByPlatform(
  * Get all asset specifications for a given type.
  */
 export function getAssetsByType(
-	type: 'icon' | 'splash' | 'adaptive' | 'favicon',
+	type: 'icon' | 'splash' | 'adaptive' | 'favicon' | 'store',
 ): AssetSpec[] {
 	switch (type) {
 		case 'icon':
-			return [...IOS_ICONS, ...ANDROID_ICONS]
+			return [
+				...IOS_ICONS,
+				...ANDROID_ICONS,
+				...WATCHOS_ICONS,
+				...TVOS_ICONS,
+				...VISIONOS_ICONS,
+			]
 		case 'splash':
 			return [...IOS_SPLASH, ...ANDROID_SPLASH]
 		case 'adaptive':
 			return ANDROID_ADAPTIVE_ICONS
 		case 'favicon':
 			return WEB_FAVICONS
+		case 'store':
+			return STORE_ASSETS
 	}
 }
 
@@ -997,7 +1248,7 @@ export function getAssetsByType(
  * Get all variant (dark, tinted, clear) asset specifications for a given type.
  */
 export function getVariantAssetsByType(
-	type: 'icon' | 'splash' | 'adaptive' | 'favicon',
+	type: 'icon' | 'splash' | 'adaptive' | 'favicon' | 'store',
 ): AssetSpec[] {
 	switch (type) {
 		case 'icon':
@@ -1014,6 +1265,9 @@ export function getVariantAssetsByType(
 		case 'favicon':
 			// Web maskable and monochrome icons
 			return WEB_FAVICONS.filter(spec => spec.colorMode !== undefined)
+		case 'store':
+			// Store assets don't have variants
+			return []
 	}
 }
 
@@ -1038,6 +1292,10 @@ export function getAllAssets(): AssetSpec[] {
 		...ANDROID_ADAPTIVE_ICONS,
 		...ANDROID_SPLASH,
 		...WEB_FAVICONS,
+		...STORE_ASSETS,
+		...WATCHOS_ICONS,
+		...TVOS_ICONS,
+		...VISIONOS_ICONS,
 	]
 }
 

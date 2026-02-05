@@ -128,9 +128,15 @@ const quietOpt = Options.boolean('quiet').pipe(Options.withDefault(false))
 const nameOpt = Options.text('name').pipe(Options.withDefault('MyApp'))
 const platformsOpt = Options.text('platforms').pipe(
 	Options.withDefault('ios,android,web'),
+	Options.withDescription(
+		'Platforms: ios, android, web, watchos, tvos, visionos (comma-separated)',
+	),
 )
 const typesOpt = Options.text('types').pipe(
 	Options.withDefault('icon,splash,adaptive,favicon'),
+	Options.withDescription(
+		'Types: icon, splash, adaptive, favicon, store (comma-separated)',
+	),
 )
 
 // Background appearance options.
@@ -170,6 +176,10 @@ const splashScaleOpt = Options.text('splash-scale').pipe(
 )
 const faviconScaleOpt = Options.text('favicon-scale').pipe(
 	Options.withDefault('0.85'),
+)
+const storeScaleOpt = Options.text('store-scale').pipe(
+	Options.withDefault('0.5'),
+	Options.withDescription('Store listing foreground scale (0.3-0.8)'),
 )
 
 // Output behavior options.
@@ -223,6 +233,7 @@ const generate = Command.make(
 		iconScale: iconScaleOpt,
 		splashScale: splashScaleOpt,
 		faviconScale: faviconScaleOpt,
+		storeScale: storeScaleOpt,
 		output: outputOpt,
 		format: formatOpt,
 		quiet: quietOpt,
@@ -434,6 +445,7 @@ const generate = Command.make(
 			const iconScale = parseFloat(opts.iconScale)
 			const splashScale = parseFloat(opts.splashScale)
 			const faviconScale = parseFloat(opts.faviconScale)
+			const storeScale = parseFloat(opts.storeScale)
 
 			if (iconScale < 0.1 || iconScale > 1.5) {
 				console.error('Error: --icon-scale must be between 0.1 and 1.5')
@@ -445,6 +457,10 @@ const generate = Command.make(
 			}
 			if (faviconScale < 0.5 || faviconScale > 1.0) {
 				console.error('Error: --favicon-scale must be between 0.5 and 1.0')
+				process.exit(2)
+			}
+			if (storeScale < 0.3 || storeScale > 0.8) {
+				console.error('Error: --store-scale must be between 0.3 and 0.8')
 				process.exit(2)
 			}
 
@@ -459,12 +475,20 @@ const generate = Command.make(
 			// Assemble the complete asset generator configuration.
 			const config: AssetGeneratorConfig = {
 				appName: opts.name,
-				platforms: opts.platforms.split(',') as ('ios' | 'android' | 'web')[],
+				platforms: opts.platforms.split(',') as (
+					| 'ios'
+					| 'android'
+					| 'web'
+					| 'watchos'
+					| 'tvos'
+					| 'visionos'
+				)[],
 				assetTypes: opts.types.split(',') as (
 					| 'icon'
 					| 'splash'
 					| 'adaptive'
 					| 'favicon'
+					| 'store'
 				)[],
 				background,
 				foreground,
@@ -472,6 +496,7 @@ const generate = Command.make(
 				iconScale,
 				splashScale,
 				faviconScale,
+				storeScale,
 			}
 
 			// Dry-run mode: show config and planned files without generating assets.
@@ -488,6 +513,24 @@ const generate = Command.make(
 					config.assetTypes.includes('favicon')
 				) {
 					additionalFiles.push('web/site.webmanifest', 'web/favicon.ico')
+				}
+				if (
+					config.platforms.includes('ios') &&
+					config.assetTypes.includes('icon')
+				) {
+					additionalFiles.push('ios/AppIcon.appiconset/Contents.json')
+				}
+				if (
+					config.platforms.includes('android') &&
+					config.assetTypes.includes('adaptive')
+				) {
+					additionalFiles.push(
+						'android/mipmap-anydpi-v26/ic_launcher.xml',
+						'android/mipmap-anydpi-v26/ic_launcher_round.xml',
+					)
+					if (config.background.type === 'color') {
+						additionalFiles.push('android/values/colors.xml')
+					}
 				}
 				additionalFiles.push('README.md')
 
@@ -818,8 +861,8 @@ const instructionsCmd = Command.make(
 /**
  * The 'list-platforms' subcommand shows supported platforms and asset types.
  *
- * Displays iOS, Android, and Web platform information including what
- * types of assets are generated for each and expected asset counts.
+ * Displays iOS, Android, Web, watchOS, tvOS, and visionOS platform information
+ * including what types of assets are generated for each and expected asset counts.
  */
 const listPlatformsCmd = Command.make(
 	'list-platforms',
@@ -828,39 +871,103 @@ const listPlatformsCmd = Command.make(
 		const platforms = {
 			ios: {
 				name: 'iOS',
-				icons: 'App icons for iPhone and iPad',
-				splash: 'Launch screens for various device sizes',
-				assetCount: { icon: 2, splash: 6 },
+				description: 'App icons for iPhone and iPad',
+				assetTypes: ['icon', 'splash'],
+				assetCount: { icon: 14, splash: 13 },
+				features: [
+					'iOS 18 dark/tinted/clear variants',
+					'Contents.json for Xcode',
+				],
 			},
 			android: {
 				name: 'Android',
-				icons: 'Launcher icons and adaptive icons',
-				adaptive: 'Foreground and background layers for adaptive icons',
-				assetCount: { icon: 5, adaptive: 3, splash: 4 },
+				description: 'Launcher icons and adaptive icons',
+				assetTypes: ['icon', 'adaptive', 'splash'],
+				assetCount: { icon: 5, adaptive: 15, splash: 10 },
+				features: [
+					'Adaptive icon layers (foreground/background)',
+					'Monochrome for Material You',
+					'ic_launcher.xml generation',
+				],
 			},
 			web: {
 				name: 'Web',
-				icons: 'PWA icons and favicons',
-				favicon: 'Favicon in multiple formats',
-				assetCount: { icon: 4, favicon: 4 },
+				description: 'PWA icons, favicons, and Apple touch icons',
+				assetTypes: ['favicon'],
+				assetCount: { favicon: 18 },
+				features: [
+					'Maskable and monochrome icons',
+					'site.webmanifest generation',
+					'favicon.ico multi-resolution',
+				],
+			},
+			watchos: {
+				name: 'watchOS',
+				description: 'App icons for Apple Watch',
+				assetTypes: ['icon'],
+				assetCount: { icon: 9 },
+				features: ['Circular mask (80% safe zone)', '1024px App Store icon'],
+			},
+			tvos: {
+				name: 'tvOS',
+				description: 'App icons and top shelf for Apple TV',
+				assetTypes: ['icon'],
+				assetCount: { icon: 6 },
+				features: [
+					'Layered icons (back/front) for parallax',
+					'Top shelf banner (1920x720, 3840x1440)',
+				],
+			},
+			visionos: {
+				name: 'visionOS',
+				description: 'App icons for Apple Vision Pro',
+				assetTypes: ['icon'],
+				assetCount: { icon: 3 },
+				features: [
+					'3D layered icons (back/front)',
+					'Circular mask (80% safe zone)',
+				],
 			},
 		}
 
+		const storeAssets = {
+			description: 'Store listing graphics',
+			assets: [
+				'Play Store icon (512x512)',
+				'Feature graphic (1024x500)',
+				'TV banner (1280x720)',
+				'App Store icon (1024x1024)',
+			],
+		}
+
 		if (format === 'json') {
-			return Console.log(JSON.stringify({ platforms }, null, 2))
+			return Console.log(
+				JSON.stringify({ platforms, store: storeAssets }, null, 2),
+			)
 		}
 
 		return Effect.sync(() => {
 			console.log('\nSupported Platforms:\n')
 			for (const [id, info] of Object.entries(platforms)) {
 				console.log(`  ${info.name.toUpperCase()} (${id})`)
-				console.log(`    Icons: ${info.icons}`)
-				if ('splash' in info) console.log(`    Splash: ${info.splash}`)
-				if ('adaptive' in info) console.log(`    Adaptive: ${info.adaptive}`)
-				if ('favicon' in info) console.log(`    Favicon: ${info.favicon}`)
+				console.log(`    ${info.description}`)
+				console.log(`    Asset types: ${info.assetTypes.join(', ')}`)
 				console.log(`    Asset count:`, JSON.stringify(info.assetCount))
+				if (info.features.length > 0) {
+					console.log('    Features:')
+					for (const feature of info.features) {
+						console.log(`      - ${feature}`)
+					}
+				}
 				console.log()
 			}
+			console.log('  STORE (store)')
+			console.log(`    ${storeAssets.description}`)
+			console.log('    Assets:')
+			for (const asset of storeAssets.assets) {
+				console.log(`      - ${asset}`)
+			}
+			console.log()
 		})
 	},
 )
